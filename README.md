@@ -15,10 +15,10 @@ pip install -r requirements.txt
 2. Check the source data.
     
     We provide one data example (Health & Medicine) in ./data folder. For the all ontologies are too large for github repo,
-    we put them in the drive for everyone to download:
+    we put them in the drive for everyone to download: https://drive.google.com/drive/folders/1jpvdZ9uH9ZOXhrDiJdFI9wjvJM1DGwmj?usp=sharing
 
 3. Place the data
-    if you download the srouce, put them into the ./data folder.
+    if you download the source data, put them into the ./data folder.
 
 4. Run the scripts in Processing
 
@@ -49,12 +49,12 @@ If you use OntoBench in your research, please cite:
 
 <h2 id="license">⚖️ License</h2>
 
-This project is licensed under the MIT License.
-
+Because OntoURL uses open source data, its license is Creative Commons Attribution 4.0 International (CC BY 4.0)—you’re free to share and adapt the dataset provided that you give appropriate credit to the original source.
 
 <h2 id="acknowledgement">🙌 Acknowledgements</h2>
 
-We thank 
+Thanks all contributors. 
+Any valuable suggestions and comments are welcomed and acknowledged. 
 
 
 <h2 id="contact">📬 Contact</h2>
