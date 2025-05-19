@@ -5,19 +5,13 @@ import logging
 from rdflib import URIRef, Literal
 from owlready2 import World, ThingClass
 
-# 全局缓存
 instance_definition_cache = {}
 instance_label_cache = {}
 
 
 def has_annotation_definition(entity):
-    """
-    判断 entity 是否有显式的 definition/comment 注解。
-    不把 rdfs:label/prefLabel 算作 definition。
-    """
     annos = []
 
-    # 常见注解属性
     annos.extend(getattr(entity, "IAO_0000115", []) or [])
     annos.extend(getattr(entity, "definition", []) or [])
     cmts = getattr(entity, "comment", []) or []
@@ -26,7 +20,6 @@ def has_annotation_definition(entity):
     else:
         annos.extend(cmts)
 
-    # 扫描其他 annotation properties
     world_obj = getattr(entity, "world",
                         getattr(entity.namespace, "world", None))
     if world_obj:
@@ -38,7 +31,6 @@ def has_annotation_definition(entity):
                     vals = [vals]
                 annos.extend(vals)
 
-        # RDFLib 图中进一步扫描
         try:
             graph = world_obj.as_rdflib_graph()
             subj = URIRef(entity.iri)
@@ -47,15 +39,12 @@ def has_annotation_definition(entity):
                 if ("definition" in local or "comment" in local) and isinstance(obj, Literal):
                     annos.append(obj)
         except Exception as e:
-            logging.warning(f"扫描 RDF 图提取 definition/comment 时出错：{e}")
+            logging.warning(f"error：{e}")
 
     return len(annos) > 0
 
 
 def get_definition(entity):
-    """
-    优先返回显式的 definition/comment 注解；若无，则返回“No definition provided.”
-    """
     key = str(entity.iri)
     if key in instance_definition_cache:
         return instance_definition_cache[key]
@@ -69,7 +58,6 @@ def get_definition(entity):
     else:
         defs.extend(cmts)
 
-    # 扫描其他 annotation properties
     world_obj = getattr(entity, "world",
                         getattr(entity.namespace, "world", None))
     if world_obj:
@@ -81,7 +69,6 @@ def get_definition(entity):
                     vals = [vals]
                 defs.extend(vals)
 
-        # RDFLib 图扫描
         try:
             graph = world_obj.as_rdflib_graph()
             subj = URIRef(entity.iri)
@@ -90,12 +77,11 @@ def get_definition(entity):
                 if ("definition" in local or "comment" in local) and isinstance(obj, Literal):
                     defs.append(obj)
         except Exception as e:
-            logging.warning(f"扫描 RDF 图提取 definition/comment 时出错：{e}")
+            pass
 
     if not defs:
         definition = "No definition provided."
     else:
-        # English 优先
         definition = next((str(d) for d in defs if getattr(d, "lang", None) == 'en'), None)
         if not definition:
             definition = str(defs[0])
@@ -105,9 +91,6 @@ def get_definition(entity):
 
 
 def get_label(entity):
-    """
-    取 rdfs:label 或 prefLabel，fallback 到 name
-    """
     key = str(entity.iri)
     if key in instance_label_cache:
         return instance_label_cache[key]
@@ -124,7 +107,6 @@ class OntologyLoader:
         self.onto = None
 
     def load(self):
-        # 加载通用注解本体
         for ont in (
             "http://purl.obolibrary.org/obo/iao.owl",
             "http://www.w3.org/2004/02/skos/core#"
@@ -132,19 +114,18 @@ class OntologyLoader:
             try:
                 self.world.get_ontology(ont).load()
             except Exception as e:
-                logging.warning(f"加载注解本体 {ont} 失败：{e}")
+                logging.warning(f"load {ont} failed：{e}")
         iri = f"file://{os.path.abspath(self.file_path)}"
         onto = self.world.get_ontology(iri)
         try:
             onto.load()
         except Exception:
-            logging.warning(f"加载用户本体带 imports 失败，尝试本地-only：{self.file_path}")
+            logging.warning(f"local-only：{self.file_path}")
             onto.load(only_local=True)
         self.onto = onto
         return onto
 
     def preload_entities(self):
-        # 预加载实例注解属性，提升后续访问性能
         for inst in self.onto.individuals():
             _ = getattr(inst, "IAO_0000115", None)
             _ = getattr(inst, "definition", None)
@@ -153,7 +134,6 @@ class OntologyLoader:
             _ = getattr(inst, "prefLabel", None)
 
     def get_all_instances_with_definition(self):
-        # 只保留那些有显式注解定义的实例
         return [
             inst for inst in self.onto.individuals()
             if has_annotation_definition(inst)
@@ -165,7 +145,6 @@ class QuestionGenerator:
         self.instances = instances
 
     def get_candidate_distractors(self, target):
-        # 从同类实例中选干扰项
         cand = set()
         for cls in target.is_a:
             if isinstance(cls, ThingClass):
@@ -173,7 +152,6 @@ class QuestionGenerator:
                     i for i in cls.instances()
                     if i != target and has_annotation_definition(i)
                 }
-        # 不足 3 个时随机补充
         if len(cand) < 3:
             others = [i for i in self.instances if i != target]
             random.shuffle(others)
@@ -185,11 +163,9 @@ class QuestionGenerator:
         return list(cand)
 
     def generate_question_for_target(self, target):
-        # 正确答案的定义与标签
         definition = get_definition(target)
         label = get_label(target)
 
-        # 构造选项（定义文本）
         options = [{"definition": definition, "is_correct": True}]
         distractors = random.sample(self.get_candidate_distractors(target), 3)
         for d in distractors:
@@ -198,7 +174,6 @@ class QuestionGenerator:
                 "is_correct": False
             })
 
-        # 随机打乱
         random.shuffle(options)
         letters = ['A', 'B', 'C', 'D']
         opts, correct = [], None
@@ -231,7 +206,6 @@ class QuestionGenerator:
             try:
                 questions.append(self.generate_question_for_target(inst))
             except Exception as e:
-                logging.warning(f"生成题目时出错（实例 {inst}）：{e}")
                 skipped += 1
         return questions, skipped
 

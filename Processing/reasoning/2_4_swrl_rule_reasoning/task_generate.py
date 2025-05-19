@@ -24,9 +24,6 @@ EXTENSIONS = ('.owl', '.rdf', '.rdfs', '.ttl')
 
 
 def get_label(entity):
-    """
-    获取实体的可读标签：优先 rdfs:label，否则 name，否则 str(entity)
-    """
     if hasattr(entity, 'label') and entity.label:
         return entity.label[0]
     if hasattr(entity, 'name'):
@@ -82,17 +79,6 @@ def parse_swrl_expression(expr, var_map=None, visited=None, depth=0, max_depth=1
 
 
 def extract_swrl_rules(onto):
-    """
-    提取本体中的 SWRL 规则（子类推理），并附带每条规则对应的类的 IRI、标签和层级深度。
-    返回列表，每项是 dict:
-      {
-        'body': [...],
-        'head': '...',
-        'class': cls,
-        'label': lbl,
-        'depth': d
-      }
-    """
     rules = []
     depth_cache = {}
     for cls in onto.classes():
@@ -113,9 +99,6 @@ def extract_swrl_rules(onto):
 
 
 def get_related_entities(onto, entity, max_items=50):
-    """
-    获取与给定实体相关的其他实体，用于生成干扰项。
-    """
     related = set()
     try:
         if isinstance(entity, ThingClass):
@@ -145,9 +128,6 @@ def get_related_entities(onto, entity, max_items=50):
 
 
 def get_swrl_distractors(atom, onto, all_preds, all_classes, num_choices=3):
-    """
-    为单原子头 atom 生成干扰项。
-    """
     pred = atom.split('(')[0]
     vars_ = [v.strip() for v in atom[atom.find('(')+1:atom.find(')')].split(',')]
     distractors = set()
@@ -183,7 +163,6 @@ def get_composite_distractors(correct, all_preds, all_classes, num_choices=3):
         if txt != correct:
             distractors.add(txt)
         i += 1
-    # 加入拆分、顺序翻转
     if len(parts) == 2:
         rev = f"{parts[1]} ∧ {parts[0]}"
         distractors.add(rev)
@@ -194,28 +173,13 @@ def get_composite_distractors(correct, all_preds, all_classes, num_choices=3):
 
 
 def generate_swrl_questions(rules, onto, all_preds, all_classes, max_q=None):
-    """
-    生成题目，输出列表，每项格式：
-      {
-        'prompt': str,
-        'options': [str, ...],
-        'correct_answer': 'A'/'B'/...,
-        'meta': {
-          'class_iri': ...,
-          'label': ...,
-          'depth': ...
-        }
-      }
-    """
     questions = []
     letters = ['A', 'B', 'C', 'D']
     for idx, r in enumerate(rules):
         if max_q and len(questions) >= max_q:
             break
 
-        # 决定是否做“复合”题
         if len(rules) >= 2 and random.random() < 0.2:
-            # 复合：随机再取一条
             r2 = random.choice(rules)
             body = r['body'] + r2['body']
             head = f"{r['head']} ∧ {r2['head']}"
@@ -224,7 +188,6 @@ def generate_swrl_questions(rules, onto, all_preds, all_classes, max_q=None):
             prompt = f"Consider an individual ?x that satisfies: {' and '.join(body)}. Which composite inference follows?"
             opts = get_composite_distractors(head, all_preds, all_classes, 3) + [head]
         else:
-            # 单一
             body = r['body']
             head = r['head']
             if head.startswith('Thing('):
@@ -256,9 +219,6 @@ def save_questions(questions, save_path):
 
 
 def process_owl_file(file_path, max_q=None):
-    """
-    加载并处理单个本体文件。如在 <timeout> 秒内未完成，则跳过。
-    """
     timeout = 120
     signal.alarm(timeout)
     try:

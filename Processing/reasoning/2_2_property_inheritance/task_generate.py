@@ -5,18 +5,15 @@ import logging
 from owlready2 import World, ThingClass, ObjectPropertyClass, Restriction, owl, sync_reasoner
 from collections import OrderedDict
 
-# ---------- 配置 ----------
 MAX_QUESTIONS = None
 BASE_DIR = '../../../data'
 EXTENSIONS = ('.owl', '.rdf', '.rdfs', '.ttl')
 NUM_CHOICES = 4
 MAX_CACHE_SIZE = 10000
-MAX_CHAINS = 1000  # 限制属性链数量
+MAX_CHAINS = 1000
 
-# ---------- 缓存 ----------
 label_cache = OrderedDict()
 
-# ---------- 获取标签 ----------
 def get_label(entity):
     key = str(getattr(entity, 'iri', str(entity)))
     if key in label_cache:
@@ -28,7 +25,6 @@ def get_label(entity):
         label_cache.popitem(last=False)
     return label
 
-# ---------- 计算类深度 ----------
 def compute_depth(entity):
     if not isinstance(entity, ThingClass):
         return float('inf')
@@ -47,7 +43,6 @@ def compute_depth(entity):
                 queue.append((parent, dist + 1))
     return float('inf')
 
-# ---------- 提取属性信息 ----------
 def extract_property_info(onto):
     triples = []
     for prop in onto.object_properties():
@@ -65,7 +60,6 @@ def extract_property_info(onto):
     logging.info(f"Extracted {len(triples)} property-domain-range-subclass triples")
     return triples
 
-# ---------- 提取属性链信息 ----------
 def extract_property_chain_info(onto):
     chains = []
     props = list(onto.object_properties())
@@ -94,7 +88,6 @@ def extract_property_chain_info(onto):
     logging.info(f"Extracted {len(chains)} property chains")
     return chains
 
-# ---------- 提取存在量词信息 ----------
 def extract_existential_info(onto):
     existentials = []
     for cls in onto.classes():
@@ -105,7 +98,6 @@ def extract_existential_info(onto):
     logging.info(f"Extracted {len(existentials)} existential restrictions")
     return existentials
 
-# ---------- 干扰项生成 ----------
 def get_distractors(correct, all_classes, exclude=None):
     candidates = [c for c in all_classes if c != correct and isinstance(c, ThingClass)]
     if exclude:
@@ -113,7 +105,6 @@ def get_distractors(correct, all_classes, exclude=None):
     candidates = sorted(candidates, key=lambda c: abs(compute_depth(c) - compute_depth(correct)))
     return random.sample(candidates[:10], min(NUM_CHOICES - 1, len(candidates)))
 
-# ---------- 题目生成：Range ----------
 class RangeQuestionGenerator:
     def __init__(self, triples, all_classes):
         self.triples = triples
@@ -153,7 +144,6 @@ class RangeQuestionGenerator:
                 questions.append(q)
         return questions
 
-# ---------- 题目生成：Property Chain ----------
 class ChainQuestionGenerator:
     def __init__(self, chains, all_classes):
         self.chains = chains
@@ -196,7 +186,6 @@ class ChainQuestionGenerator:
                 questions.append(q)
         return questions
 
-# ---------- 题目生成：Existential ----------
 class ExistentialQuestionGenerator:
     def __init__(self, existentials, all_classes):
         self.existentials = existentials
@@ -235,14 +224,12 @@ class ExistentialQuestionGenerator:
                 questions.append(q)
         return questions
 
-# ---------- 保存 ----------
 def save_questions(questions, save_path):
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     with open(save_path, 'w', encoding='utf-8') as f:
         json.dump(questions, f, ensure_ascii=False, indent=4)
     logging.info(f"Saved {len(questions)} questions to {save_path}")
 
-# ---------- 主流程 ----------
 def process_owl_file(file_path, max_q=None):
     world = World()
     onto = None
@@ -286,7 +273,6 @@ def process_owl_file(file_path, max_q=None):
     except Exception as e:
         logging.debug(f"Failed to close World: {e}")
 
-# ---------- 入口 ----------
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     random.seed(42)

@@ -8,12 +8,10 @@ from owlready2 import World, ThingClass, Restriction, owl
 from collections import defaultdict
 from itertools import islice
 
-# ---------- 配置 ----------
-MAX_QUESTIONS = 30000  # 每个 ontology 最多生成 30000 个问题
+MAX_QUESTIONS = 30000
 BASE_DIR = '../../../data'
 EXTENSIONS = ('.owl', '.rdf', '.rdfs', '.ttl')
 
-# ---------- 缓存 & 全局 ----------
 label_cache = {}
 
 
@@ -49,7 +47,6 @@ class RelationQuestionGenerator:
         self.triples = triples
         self.all_classes = all_classes
         self.meta = metadata
-        # 预计算 disjoint 集合以加速 distractor 选择
         self.disjoint_sets = defaultdict(set)
         for c in all_classes:
             for dis in getattr(c, 'disjoint_with', []):
@@ -57,7 +54,6 @@ class RelationQuestionGenerator:
                     self.disjoint_sets[c].add(dis)
 
     def _get_distractors(self, obj, k):
-        # 优先选择 disjoint 的类作为 distractors
         obj_anc = self.meta[obj]['ancestors']
         distractors = []
         candidates = list(self.disjoint_sets[obj])
@@ -66,7 +62,6 @@ class RelationQuestionGenerator:
             if c is not obj and len(distractors) < k:
                 distractors.append(c)
 
-        # 如果不够，从非祖先的类中补充
         if len(distractors) < k:
             remaining = [c for c in self.all_classes if c is not obj and c not in obj_anc and c not in distractors]
             random.shuffle(remaining)
@@ -77,7 +72,6 @@ class RelationQuestionGenerator:
     def generate_all(self, max_q=MAX_QUESTIONS):
         questions = []
         letters = ['A', 'B', 'C', 'D']
-        # 使用 islice 限制 triples 的处理数量
         for subj, rel, obj in islice(self.triples, max_q):
             m = self.meta[subj]
             distractors = self._get_distractors(obj, 3)
@@ -111,8 +105,6 @@ class RelationQuestionGenerator:
                 break
         return questions
 
-
-# ---------- 提取与预计算 ----------
 def compute_ancestors(parent_map, all_classes):
     ancestors_map = {c: set() for c in all_classes}
 
@@ -135,7 +127,6 @@ def extract_and_prepare(onto):
     all_classes = list(onto.classes())
     logging.info(f"Found {len(all_classes)} classes")
 
-    # 父-子邻接表
     parent_map = {}
     for c in all_classes:
         try:
@@ -149,10 +140,8 @@ def extract_and_prepare(onto):
         for p in parents:
             child_map[p].append(c)
 
-    # 计算祖先
     ancestors_map = compute_ancestors(parent_map, all_classes)
 
-    # 计算元数据
     metadata = {}
     for c in all_classes:
         if parent_map[c]:
@@ -171,11 +160,9 @@ def extract_and_prepare(onto):
             'ancestors': ancestors_map[c]
         }
 
-    # 抽取关系三元组
     relations = {'subclassOf', 'equivalentTo', 'disjointWith', 'complementOf', 'unionOf', 'intersectionOf'}
     triples = []
 
-    # 显式关系
     for c in all_classes:
         try:
             for p in parent_map[c]:
@@ -198,7 +185,6 @@ def extract_and_prepare(onto):
         except Exception as e:
             logging.warning(f"Failed explicit triples for {c}: {e}")
 
-    # 全局 disjointClasses
     try:
         for a, b in onto.disjoint_classes():
             As = a if isinstance(a, (list, tuple, set)) else [a]
@@ -210,7 +196,6 @@ def extract_and_prepare(onto):
     except Exception as e:
         logging.warning(f"Failed global disjoints: {e}")
 
-    # RDF 列表关系
     graph = onto.world.as_rdflib_graph()
     for c in all_classes:
         try:
@@ -225,14 +210,12 @@ def extract_and_prepare(onto):
                         if isinstance(ent, ThingClass):
                             triples.append((c, local, ent))
                         node = graph.value(node, RDF.rest)
-                        # 限制列表长度以防止无限循环
                         if node == obj:
                             logging.warning(f"Cycle detected in RDF list for {c}")
                             break
         except Exception as e:
             logging.warning(f"Failed RDF list for {c}: {e}")
 
-    # 对象属性关系
     for prop in onto.object_properties():
         try:
             name = prop.python_name
@@ -249,7 +232,6 @@ def extract_and_prepare(onto):
     return all_classes, triples, metadata
 
 
-# ---------- 文件处理 & 主流程 ----------
 def process_owl_file(file_path, max_q=MAX_QUESTIONS):
     world = World()
     try:
@@ -272,7 +254,6 @@ def process_owl_file(file_path, max_q=MAX_QUESTIONS):
     except Exception as e:
         logging.error(f"Failed to save questions for {file_path}: {e}")
     finally:
-        # 清理内存
         world.close()
         label_cache.clear()
 

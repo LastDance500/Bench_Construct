@@ -6,16 +6,10 @@ import re
 from rdflib import URIRef, Literal
 from owlready2 import World, ThingClass, owl
 
-# 全局缓存
 definition_cache = {}
 label_cache = {}
 
 def get_definition(entity):
-    """
-    自动收集所有可能的 definition 注解属性（只要属性名或本地名中包含 'definition'），
-    按语言选 English 优先，否则取第一个。有的话缓存后返回。
-    最后，如果仍无定义，使用 rdfs:label 作为 fallback。
-    """
     key = str(entity.iri)
     if key in definition_cache:
         return definition_cache[key]
@@ -34,11 +28,9 @@ def get_definition(entity):
     # 4. skos:prefLabel
     defs.extend(getattr(entity, "prefLabel", []) or [])
 
-    # 找到 world 对象
     world_obj = getattr(entity, "world",
                         getattr(entity.namespace, "world", None))
 
-    # 5. 扫描所有 annotation_properties 中含 “definition” 的
     if world_obj:
         for ap in world_obj.annotation_properties():
             ap_local = str(ap.iri).split('#')[-1]
@@ -48,7 +40,6 @@ def get_definition(entity):
                     vals = [vals]
                 defs.extend(vals)
 
-        # 6. 从 RDFLib 图中扫描 predicate 本地名含 “definition” 的三元组
         try:
             graph = world_obj.as_rdflib_graph()
             subj  = URIRef(entity.iri)
@@ -66,12 +57,10 @@ def get_definition(entity):
         except Exception as e:
             logging.warning(f"扫描 RDF 图提取 definition 时出错：{e}")
 
-    # 7. 如果仍无 defs，用 rdfs:label 作为 fallback
     if not defs:
         labs = getattr(entity, "label", []) or []
         defs.extend(labs)
 
-    # 按语言过滤，English 优先
     definition = None
     for d in defs:
         if getattr(d, "lang", None) == 'en':
@@ -86,9 +75,6 @@ def get_definition(entity):
     return definition
 
 def get_label(entity):
-    """
-    取 rdfs:label 或 prefLabel，fallback 到 entity.name
-    """
     key = str(entity.iri)
     if key in label_cache:
         return label_cache[key]
@@ -155,7 +141,6 @@ class OntologyLoader:
         self.onto      = None
 
     def load(self):
-        # 显式加载注解本体，确保 skos:definition、IAO_0000115 等被识别
         for ont in (
             "http://purl.obolibrary.org/obo/iao.owl",
             "http://www.w3.org/2004/02/skos/core#"
@@ -163,14 +148,14 @@ class OntologyLoader:
             try:
                 self.world.get_ontology(ont).load()
             except Exception as e:
-                logging.warning(f"加载注解本体 {ont} 失败：{e}")
+                pass
 
         iri = f"file://{os.path.abspath(self.file_path)}"
         onto = self.world.get_ontology(iri)
         try:
-            onto.load()  # 尝试带 imports
+            onto.load()
         except Exception:
-            logging.warning(f"加载用户本体带 imports 失败，尝试本地-only：{self.file_path}")
+            logging.warning(f"local-only：{self.file_path}")
             onto.load(only_local=True)
         self.onto = onto
         return onto
@@ -195,24 +180,20 @@ class QuestionGenerator:
 
     def get_candidate_distractors(self, target):
         cand = set()
-        # 同层级其它子类
         for p in target.is_a:
             if isinstance(p, ThingClass) and p != owl.Thing:
                 cand |= {
                     s for s in p.subclasses()
                     if s != target and get_definition(s) != "No definition provided."
                 }
-        # 父类
         cand |= {
             p for p in target.is_a
             if isinstance(p, ThingClass) and p != owl.Thing and get_definition(p) != "No definition provided."
         }
-        # 子类
         cand |= {
             c for c in target.subclasses()
             if c != target and get_definition(c) != "No definition provided."
         }
-        # 不足 3 个时随机补充
         if len(cand) < 3:
             others = [c for c in self.classes if c != target]
             random.shuffle(others)
@@ -230,11 +211,9 @@ class QuestionGenerator:
         sub = len(list(target.subclasses()))
         par = len([p for p in target.is_a if isinstance(p, ThingClass) and p != owl.Thing])
 
-        # 正确项
         defs = get_definition(target)
         lbl  = get_label(target)
         options = [{"label": lbl, "definition": defs, "is_correct": True}]
-        # 干扰项
         distractors = random.sample(self.get_candidate_distractors(target), 3)
         for dsc in distractors:
             options.append({

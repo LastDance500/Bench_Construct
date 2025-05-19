@@ -9,20 +9,18 @@ import rdflib
 import owlready2
 from owlready2 import *
 
-# ---------- 常量管理 ----------
 CONFIG = {
     'BASE_DIR': '../../../data',
     'EXTENSIONS': ('.owl', '.rdf', '.rdfs', '.ttl', '.xml', '.n3'),
-    'MAX_SUBGRAPH_SIZE': 15,  # 最大子图大小（上限）
-    'MIN_SUBGRAPH_SIZE': 8,   # 最小子图大小（下限）
+    'MAX_SUBGRAPH_SIZE': 15,
+    'MIN_SUBGRAPH_SIZE': 8,
     'DEPTH_OPTIONS': [2, 3, 4, 5, 6, 7, 8],
     'MAX_SUBGRAPH_RETRIES': 20,
     'NUM_PROPERTY_SETS_MAX': 100,
-    'PROPERTIES_PER_SET_MAX': 10,  # 最大类集大小（上限）
-    'MIN_PROPERTIES_PER_SET': 5    # 最小类集大小（下限）
+    'PROPERTIES_PER_SET_MAX': 10,
+    'MIN_PROPERTIES_PER_SET': 5
 }
 
-# ---------- 兼容性补丁 ----------
 if not hasattr(owlready2.World, '_get_obj_triples'):
     def _stub_get_obj_triples(self, *args, **kwargs):
         return []
@@ -30,7 +28,6 @@ if not hasattr(owlready2.World, '_get_obj_triples'):
 if not hasattr(owlready2.World, '_get_obj_triples_cspo_cspo'):
     owlready2.World._get_obj_triples_cspo_cspo = owlready2.World._get_obj_triples
 
-# ---------- 日志 ----------
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -40,10 +37,8 @@ logging.basicConfig(
     ]
 )
 
-# ---------- 全局缓存 ----------
 definition_cache = {}
 
-# ---------- 工具函数 ----------
 def get_label(entity):
     labels = getattr(entity, 'label', []) or []
     return labels[0] if labels else getattr(entity, 'name', str(entity))
@@ -84,11 +79,9 @@ def is_valid_property(prop, onto):
              isinstance(prop, owlready2.DataPropertyClass)) and
             prop in onto.properties())
 
-# ---------- 子图提取 ----------
 def get_subgraph_around_properties(onto, input_properties, depth=2):
     obj_props = [p for p in input_properties if is_valid_property(p, onto)]
 
-    # 初始类别集
     initial_classes = set()
     for prop in obj_props:
         for d in prop.domain:
@@ -120,12 +113,10 @@ def get_subgraph_around_properties(onto, input_properties, depth=2):
                         queue.append((sup, d+1))
                 for sub in cls.subclasses():
                     queue.append((sub, d+1))
-        # 检查最小子图规模
         if len(related_classes) < CONFIG['MIN_SUBGRAPH_SIZE']:
             logging.warning(f'Subgraph too small ({len(related_classes)}), retrying')
             target = min(target+1, max(CONFIG['DEPTH_OPTIONS']))
             continue
-        # 收集约束
         for prop in obj_props:
             for domain in prop.domain:
                 if domain in related_classes:
@@ -144,14 +135,12 @@ def get_subgraph_around_properties(onto, input_properties, depth=2):
     logging.error('Failed to build constraint subgraph')
     return set(), [], {}
 
-# ---------- 约束提取 ----------
 def generate_constraint_triples(onto, input_properties):
     classes, constraints, annotations = get_subgraph_around_properties(onto, input_properties)
     if not classes or not constraints:
         logging.warning('Empty classes or constraints, skip')
         return None
 
-    # 格式化三元组
     triples = []
     for prop, ctype, val in sorted(
         constraints,
@@ -161,7 +150,6 @@ def generate_constraint_triples(onto, input_properties):
         v_lbl = 'True' if ctype == 'functional' else get_label(val)
         triples.append({'triple': (p_lbl, ctype, v_lbl), 'text': f'{p_lbl} {ctype} {v_lbl}.'})
 
-    # 类定义列表
     classes_def = []
     for c in sorted(classes, key=get_label):
         dfn = get_definition(c)
@@ -175,7 +163,6 @@ def generate_constraint_triples(onto, input_properties):
         'annotations': {get_label(e): annotations[e] for e in annotations}
     }
 
-# ---------- 文本描述 ----------
 def describe_constraint_task(classes, properties, annotations):
     lines = ['## Property Constraint Learning Task',
              'Given classes and properties, generate property constraints.']
@@ -194,7 +181,6 @@ def describe_constraint_task(classes, properties, annotations):
     lines.append('- Generate functional constraints.')
     return '\n'.join(lines)
 
-# ---------- 主流程 ----------
 def process_for_constraint_task(
     file_path,
     num_property_sets_max=CONFIG['NUM_PROPERTY_SETS_MAX'],
@@ -240,7 +226,6 @@ def process_for_constraint_task(
         json.dump(tasks, f, ensure_ascii=False, indent=2)
     logging.info(f'Saved {len(tasks)} tasks to {out_path}')
 
-# ---------- 加载与转换 ----------
 def rdflib_to_owlready(g):
     tmp = f'tmp_{uuid.uuid4()}.owl'
     g.serialize(tmp, format='xml')

@@ -8,9 +8,6 @@ from owlready2 import World, ThingClass, owl
 label_cache = {}
 
 def get_label(entity):
-    """
-    取 rdfs:label 或 skos:prefLabel，fallback 到 entity.name
-    """
     key = str(entity.iri)
     if key in label_cache:
         return label_cache[key]
@@ -77,19 +74,17 @@ class OntologyLoader:
         self.onto      = None
 
     def load(self):
-        # 加载本体文件（带 imports）
         iri = f"file://{os.path.abspath(self.file_path)}"
         onto = self.world.get_ontology(iri)
         try:
             onto.load()
         except Exception:
-            logging.warning(f"加载用户本体带 imports 失败，尝试本地-only：{self.file_path}")
+            logging.warning(f"local-only：{self.file_path}")
             onto.load(only_local=True)
         self.onto = onto
         return onto
 
     def preload_entities(self):
-        # 预触发类与实例的属性读取
         for cls in self.onto.classes():
             _ = getattr(cls, "label", None)
             _ = getattr(cls, "prefLabel", None)
@@ -107,11 +102,9 @@ class ClassInstanceQuestionGenerator:
     def __init__(self, instances, classes):
         self.instances = instances
         self.classes   = classes
-        # 全局指标，用于后续可选的加权筛选
         self.gm        = compute_global_metrics(classes)
 
     def get_candidate_distractors(self, target_class):
-        # 排除 target_class 的所有祖先和后代
         ancestors   = set(target_class.ancestors()) - {target_class, owl.Thing}
         descendants = set(target_class.descendants()) - {target_class}
         excluded    = ancestors | descendants | {target_class, owl.Thing}
@@ -119,18 +112,15 @@ class ClassInstanceQuestionGenerator:
 
     def generate_question_for_instance(self, inst):
         inst_label = get_label(inst)
-        # 选择一个直接类型作为答案
         types = [t for t in inst.is_a if isinstance(t, ThingClass) and t != owl.Thing]
         if not types:
             return None
         target = random.choice(types)
         target_label = get_label(target)
 
-        # 生成干扰项
         candidates = self.get_candidate_distractors(target)
         random.shuffle(candidates)
         distractors = candidates[:3]
-        # 若不足 3 个，再从全局补足
         if len(distractors) < 3:
             others = [c for c in self.classes if c != target and c not in distractors]
             random.shuffle(others)
@@ -142,7 +132,6 @@ class ClassInstanceQuestionGenerator:
         options = [target] + distractors[:3]
         random.shuffle(options)
 
-        # 构建选项结构
         letters = ['A','B','C','D']
         opts    = []
         correct = None
@@ -154,7 +143,6 @@ class ClassInstanceQuestionGenerator:
             if c == target:
                 correct = letters[i]
 
-        # 计算目标类的元数据
         depth          = compute_depth(target)
         sibling_count  = len(get_siblings(target))
         subclass_count = len(list(target.subclasses()))

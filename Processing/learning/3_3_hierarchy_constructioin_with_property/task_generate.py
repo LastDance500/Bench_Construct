@@ -6,27 +6,22 @@ import uuid
 from collections import deque
 
 import rdflib
-from owlready2 import *
 
-# ---------- 常量管理 ----------
 CONFIG = {
     'BASE_DIR': '../../../data',
     'EXTENSIONS': ('.owl', '.rdf', '.rdfs', '.ttl', '.xml', '.n3'),
-    'MAX_SUBGRAPH_SIZE': 15,  # 最大子图大小（上限）
-    'MIN_SUBGRAPH_SIZE': 8,   # 最小子图大小（下限）
+    'MAX_SUBGRAPH_SIZE': 15,
+    'MIN_SUBGRAPH_SIZE': 8,
     'DEPTH_OPTIONS': [2, 3, 4, 5, 6],
     'MAX_SUBGRAPH_RETRIES': 10,
     'NUM_CLASS_SETS_MAX': 100,
-    'CLASSES_PER_SET_MAX': 10,  # 最大类集大小（上限）
-    'MIN_CLASSES_PER_SET': 5    # 最小类集大小（下限）
+    'CLASSES_PER_SET_MAX': 10,
+    'MIN_CLASSES_PER_SET': 5
 }
 
-# ---------- 日志 ----------
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# ---------- 工具 ----------
 def get_label(entity):
-    """获取实体或属性的标签或名称"""
     if not entity:
         return "Unnamed"
     labels = getattr(entity, 'label', []) or []
@@ -39,7 +34,6 @@ def get_label(entity):
 
 
 def get_comment(entity):
-    """获取实体的注释"""
     if not entity:
         return None
     comments = getattr(entity, 'comment', []) or []
@@ -47,7 +41,6 @@ def get_comment(entity):
 
 
 def select_related_classes(all_classes, classes_per_set):
-    """选择一组有层次关系的类，保证达到最小和不超过最大"""
     if not all_classes:
         return []
     max_c = min(classes_per_set, len(all_classes))
@@ -85,9 +78,7 @@ def select_related_classes(all_classes, classes_per_set):
     return random.sample(list(related), min(max_c, len(related)))
 
 
-# ---------- 子图提取 ----------
 def get_subgraph_around_classes(onto, input_classes, depth=2):
-    """提取子图，包含对象和数据属性，且满足最小子图大小"""
     target_depth = min(depth, max(CONFIG['DEPTH_OPTIONS']))
 
     obj_props = list(onto.object_properties())
@@ -168,12 +159,7 @@ def get_subgraph_around_classes(onto, input_classes, depth=2):
     return set(), set(), set(), {}, [], []
 
 
-# ---------- 层次结构与属性关系提取 ----------
 def generate_property_triples(onto, input_classes):
-    """
-    仅基于对象属性和数据属性生成三元组，不再包含 subClassOf。
-    返回结果只包括在 triples 中实际使用到的属性列表。
-    """
     for attempt in range(CONFIG['MAX_SUBGRAPH_RETRIES'] + 1):
         classes, obj_rels, data_rels, annotations, obj_props, data_props = \
             get_subgraph_around_classes(onto, input_classes)
@@ -184,7 +170,6 @@ def generate_property_triples(onto, input_classes):
         triples = set()
         prop_chars = {}
 
-        # 对象属性三元组
         for s, p, o in obj_rels:
             if s in classes and o in classes:
                 lbl = get_label(p)
@@ -196,7 +181,6 @@ def generate_property_triples(onto, input_classes):
                 if chars:
                     prop_chars.setdefault(lbl, []).extend(chars)
 
-        # 数据属性三元组
         for s, p, lit in data_rels:
             if s in classes:
                 lbl = get_label(p)
@@ -208,7 +192,6 @@ def generate_property_triples(onto, input_classes):
             logging.warning(f"No property triples found at attempt {attempt + 1}; retrying")
             continue
 
-        # 计算实际使用到的属性
         used_obj_props  = {pr for s, pr, o in triples if isinstance(o, ThingClass)}
         used_data_props = {pr for s, pr, o in triples if not isinstance(o, ThingClass)}
 
@@ -239,7 +222,6 @@ def generate_property_triples(onto, input_classes):
     }
 
 
-# ---------- 文本描述 ----------
 def describe_property_task(classes, annotations, isolated_classes, object_props, data_props):
     lines = [
         "## Hierarchy and Property Construction Task",
@@ -266,7 +248,6 @@ def describe_property_task(classes, annotations, isolated_classes, object_props,
     return "\n".join(lines)
 
 
-# ---------- 主流程 ----------
 def process_for_property_task(
         file_path,
         num_class_sets_max=CONFIG['NUM_CLASS_SETS_MAX'],
@@ -326,7 +307,6 @@ def process_for_property_task(
     logging.info(f"Saved {len(tasks)} property tasks for {file_path}")
 
 
-# ---------- OWL 加载 ----------
 def rdflib_to_owlready(rdf_graph):
     temp = f"temp_{uuid.uuid4()}.owl"
     rdf_graph.serialize(temp, format='xml')

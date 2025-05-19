@@ -8,21 +8,18 @@ from concurrent.futures import ProcessPoolExecutor
 from owlready2 import World, ThingClass, owl, Restriction, sync_reasoner
 import signal
 
-# ---------- 配置 ----------
-MAX_QUESTIONS = 30000  # 最大问题数量
-REASONING_CLASS_THRESHOLD = 5000  # 跳过外部推理的类数量阈值
-MAX_CLASSES = 1000  # 最大采样类数量
-MAX_TRIPLES = 10000  # 最大采样三元组数量
+MAX_QUESTIONS = 30000
+REASONING_CLASS_THRESHOLD = 5000
+MAX_CLASSES = 1000
+MAX_TRIPLES = 10000
 BASE_DIR = '../../../data'
 EXTENSIONS = ('.owl', '.rdf', '.rdfs', '.ttl')
-REASONING_TIMEOUT = 300  # 推理超时时间（秒）
+REASONING_TIMEOUT = 300
 
-# ---------- 全局缓存 ----------
 label_cache = {}
 depth_cache = {}
 ancestors_cache = defaultdict(set)
 
-# ---------- 获取标签 ----------
 def get_label(entity):
     key = str(entity.iri)
     if key in label_cache:
@@ -32,7 +29,6 @@ def get_label(entity):
     label_cache[key] = label
     return label
 
-# ---------- 预计算类元数据 ----------
 def precompute_class_metadata(onto, classes):
     depths = {owl.Thing: 0}
     ancestors_cache.clear()
@@ -52,7 +48,6 @@ def precompute_class_metadata(onto, classes):
                 queue.append((sub, depth + 1))
     return depths, ancestors_cache
 
-# ---------- 获取同胞类 ----------
 def get_siblings(entity, classes):
     sibs = set()
     for p in entity.is_a:
@@ -61,7 +56,6 @@ def get_siblings(entity, classes):
     sibs.discard(entity)
     return sibs
 
-# ---------- 显式三元组提取 ----------
 def extract_explicit_class_triples(onto, relations, classes):
     triples = set()
     for cls in classes:
@@ -86,7 +80,6 @@ def extract_explicit_class_triples(onto, relations, classes):
                     triples.add((cls, name, filler))
     return triples
 
-# ---------- 自然语言 Prompt 生成 ----------
 def humanize_relation(rel_name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1 \2', rel_name)
     s2 = re.sub('([a-z0-9])([A-Z])', r'\1 \2', s1)
@@ -102,7 +95,6 @@ def make_prompt(subj_label, rel_name, inferred=False):
         question = f"Which of the following classes {human} '{subj_label}'?"
     return ("After reasoning, " + question) if inferred else question
 
-# ---------- 题目生成 ----------
 class RelationQuestionGenerator:
     def __init__(self, triples, all_classes, inferred=False):
         self.triples = triples
@@ -116,8 +108,6 @@ class RelationQuestionGenerator:
         return random.choice(self.by_subject[subj])
 
     def _get_distractors(self, subj, rel, obj, num_choices):
-        # 对于 subclassOf，排除所有真正的超类；对于 equivalentTo，排除所有等价类；
-        # 其他关系，也排除所有真实填充值
         if rel == 'subclassOf':
             disallowed = ancestors_cache[subj]
         elif rel == 'equivalentTo':
@@ -125,7 +115,6 @@ class RelationQuestionGenerator:
         else:
             disallowed = {f for (s, r, f) in self.triples if s == subj and r == rel}
 
-        # 随机候选
         candidates = random.sample(self.all_classes, min(100, len(self.all_classes)))
         distractors = []
         for c in candidates:
@@ -137,7 +126,6 @@ class RelationQuestionGenerator:
             if len(distractors) >= num_choices - 1:
                 break
 
-        # 如果不足，再从剩下的里补
         if len(distractors) < num_choices - 1:
             extra = [c for c in self.all_classes if c not in distractors and c not in disallowed and c != obj]
             distractors += random.sample(extra, min(num_choices - 1 - len(distractors), len(extra)))
@@ -196,41 +184,35 @@ class RelationQuestionGenerator:
                 logging.warning(f"Error generating question: {e}")
         return questions
 
-# ---------- 保存 ----------
 def save_questions(questions, save_path):
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     with open(save_path, 'w', encoding='utf-8') as f:
         json.dump(questions, f, ensure_ascii=False, indent=4)
     logging.info(f"Saved {len(questions)} questions to {save_path}")
 
-# ---------- 主流程 ----------
 def process_owl_file_with_reasoning(file_path, max_q=None):
     logging.info(f"Processing {file_path}")
     world = World()
     onto = world.get_ontology(f"file://{os.path.abspath(file_path)}").load()
 
-    # 加载 imports
     for imp in onto.imported_ontologies:
         try:
             imp.load()
         except Exception:
             pass
 
-    # 采样类
     all_classes = list(onto.classes())
     if len(all_classes) > MAX_CLASSES:
         all_classes = random.sample(all_classes, MAX_CLASSES)
     else:
         all_classes = list(onto.classes())
 
-    # 预计算元数据
     global depth_cache
     depth_cache, _ = precompute_class_metadata(onto, set(all_classes))
 
     relations = ['subclassOf', 'equivalentTo'] + [prop.python_name for prop in onto.object_properties()]
     explicit = extract_explicit_class_triples(onto, relations, all_classes)
 
-    # 推理或手动计算
     num_classes = len(all_classes)
     inferred = set()
     if num_classes <= REASONING_CLASS_THRESHOLD:
@@ -264,7 +246,6 @@ def process_owl_file_with_reasoning(file_path, max_q=None):
                 if isinstance(eq, ThingClass) and eq in all_classes:
                     inferred.add((cls, 'equivalentTo', eq))
 
-    # 处理限制
     for cls in all_classes:
         for restriction in cls.is_a:
             if isinstance(restriction, Restriction):
@@ -283,16 +264,13 @@ def process_owl_file_with_reasoning(file_path, max_q=None):
         logging.info(f"{file_path} - No implicit triples, skipping")
         return
 
-    # 生成问题
     gen = RelationQuestionGenerator(implicit, all_classes, inferred=True)
     questions = gen.generate_all(max_q)
 
-    # 保存结果
     out_dir = os.path.dirname(file_path).replace('data', 'bench/bench_2_1')
     save_path = os.path.join(out_dir, f'relations_inferred_{os.path.basename(file_path)}.json')
     save_questions(questions, save_path)
 
-    # 清空缓存
     label_cache.clear()
     depth_cache.clear()
     ancestors_cache.clear()

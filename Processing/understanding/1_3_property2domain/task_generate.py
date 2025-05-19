@@ -4,21 +4,15 @@ import random
 import logging
 from owlready2 import World, ThingClass, owl
 
-# 配置：可根据需要修改
 BASE_DIR = '../../../data'
 EXTENSIONS = ('.owl', '.rdf', '.rdfs', '.ttl')
-MAX_QUESTIONS = None  # None 表示处理所有
-MIN_DISTRACTORS = 2   # 至少两个干扰项，确保至少三个选项
+MAX_QUESTIONS = None
+MIN_DISTRACTORS = 2
 
-# 全局缓存
 label_cache = {}
 
-# ---------- 基础工具 ----------
 
 def get_label(entity):
-    """
-    提取 rdfs:label 或 prefLabel，fallback 到实体名称
-    """
     key = str(getattr(entity, 'iri', str(entity)))
     if key in label_cache:
         return label_cache[key]
@@ -49,9 +43,6 @@ def get_siblings(entity):
     return sibs
 
 def get_ancestors(entity, memo=None):
-    """
-    递归获取所有父类
-    """
     if memo is None:
         memo = {}
     if entity in memo:
@@ -64,14 +55,7 @@ def get_ancestors(entity, memo=None):
     memo[entity] = ancestors
     return ancestors
 
-# ---------- 提取 DataProperty 相关信息 ----------
-
 def extract_dataproperty_info(onto):
-    """
-    提取所有 DataProperty 的 domain 和 range 信息
-    返回列表 [(prop, domain_cls, range_type), ...]
-    和 prop 到 domain/range 的映射
-    """
     triples = []
     prop_info = {}
     data_props = list(onto.data_properties())
@@ -79,22 +63,18 @@ def extract_dataproperty_info(onto):
     for prop in data_props:
         domains = set()
         ranges = set()
-        # 提取 domain
         for domain in prop.domain:
             if isinstance(domain, ThingClass):
                 domains.add(domain)
-        # 提取 range
         for range_type in prop.range:
             ranges.add(range_type)
-        if domains:  # 只处理有明确 domain 的属性
+        if domains:
             prop_info[prop] = {'domains': domains, 'ranges': ranges}
             for domain in domains:
                 for range_type in ranges:
                     triples.append((prop, domain, range_type))
     logging.info(f"Generated {len(triples)} (Property, Domain, Range) triples")
     return triples, prop_info
-
-# ---------- 属性到 Domain/Range 题目生成 ----------
 
 class PropertyDomainRangeQuestionGenerator:
     def __init__(self, triples, prop_info, all_classes):
@@ -105,17 +85,14 @@ class PropertyDomainRangeQuestionGenerator:
 
     def generate_one(self, prop, domain_cls, range_type, num_choices=4):
         try:
-            # 元数据统计
             depth = compute_depth(domain_cls)
             siblings = len(get_siblings(domain_cls))
             subclasses = len(list(domain_cls.subclasses()))
             parents = len([p for p in domain_cls.is_a if isinstance(p, ThingClass)])
 
-            # 选择生成 domain 或 range 问题（随机选择）
             question_type = random.choice(['domain', 'range'])
             correct_answer = domain_cls if question_type == 'domain' else range_type
 
-            # 干扰项：选择尽量无关的类
             distractors = []
             candidates = [c for c in self.all_classes if c != correct_answer]
             logging.debug(f"Generating {question_type} question for property {get_label(prop)}, candidates: {len(candidates)}")
@@ -130,7 +107,6 @@ class PropertyDomainRangeQuestionGenerator:
                 if len(distractors) >= num_choices - 1:
                     break
 
-            # 若不足，补全任意非正确答案的类
             if len(distractors) < num_choices - 1:
                 logging.warning(f"Only {len(distractors)} distractors found for {get_label(prop)}, need {num_choices - 1}")
                 for candidate in candidates:
@@ -139,7 +115,6 @@ class PropertyDomainRangeQuestionGenerator:
                     if len(distractors) >= num_choices - 1:
                         break
 
-            # 确保至少两个干扰项
             if len(distractors) < MIN_DISTRACTORS:
                 logging.warning(f"Insufficient distractors ({len(distractors)}) for {get_label(prop)}, skipping question")
                 return None
@@ -158,7 +133,6 @@ class PropertyDomainRangeQuestionGenerator:
 
             prompt = (f"Which of the following is a valid {question_type} for the data property '{get_label(prop)}'?")
 
-            # 安全处理 range_type 的 iri 和 label
             range_iri = str(getattr(range_type, 'iri', str(range_type))) if range_type else 'N/A'
             range_label = get_label(range_type) if range_type else str(range_type)
 
@@ -196,8 +170,6 @@ class PropertyDomainRangeQuestionGenerator:
         logging.info(f"Generated {len(questions)} questions for this ontology")
         return questions
 
-# ---------- 主流程 ----------
-
 def save_questions(questions, save_path):
     if not questions:
         logging.info(f"No questions generated for {save_path}, skipping save")
@@ -227,7 +199,6 @@ def main():
             world = World()
             onto = world.get_ontology(f"file://{os.path.abspath(fp)}").load()
             logging.info(f"Successfully loaded ontology: {fp}")
-            # 收集所有类
             all_classes = list(onto.classes())
             triples, prop_info = extract_dataproperty_info(onto)
             gen = PropertyDomainRangeQuestionGenerator(triples, prop_info, all_classes)
