@@ -1,62 +1,91 @@
+**NOTE:** This repository contains scripts for constructing the OntoURL benchmark **from scratch**.  
+If you only wish to **run LLM inference and evaluation**, please refer to the main repository:  
+👉 https://github.com/LastDance500/OntoURL
 
-NOTE: The repo contains the scripts to construct OntoURL from scratch.
-If you just want to run the LLMs and evaluation, please refer to https://github.com/LastDance500/OntoURL
+---
 
+## 🚀 Getting Started
 
-<h2 id="get-started">🚀 Getting Started</h2>
+### 1. Install Requirements
 
-
-1. Requirements
-
-<pre><code>
+```bash
 pip install -r requirements.txt
-</code></pre>
+```
 
-2. Check the source data.
-    
-    We provide one data example (Health & Medicine) in ./data folder. For the all ontologies are too large for github repo,
-    we put them in the drive for everyone to download: https://drive.google.com/drive/folders/1jpvdZ9uH9ZOXhrDiJdFI9wjvJM1DGwmj?usp=sharing
+---
 
-3. Place the data
-    if you download the source data, put them into the ./data folder.
+### 2. Prepare Source Data
 
-4. Run the scripts in Processing
+A small example ontology (Health & Medicine) is included in the `./data` folder.  
+For the full set of ontologies (too large for GitHub), download from Google Drive:
 
-    <pre><code>
-    cd Processing
-    cd understanding # to the target level
-    cd 1_1_class2definition # to the target task
-    python3 task_generate.py
-    </code></pre>
+📂 https://drive.google.com/drive/folders/1jpvdZ9uH9ZOXhrDiJdFI9wjvJM1DGwmj?usp=sharing
 
-5. Bench creation
-   
-    After you finish the generation, some json files will automatically save to 
-     ./bench folder.
-    
-    <pre><code>
-    cd ..
-    cd bench/bench_1_1 # to the target task
-    find . -type f -name "post-processing.py" -exec bash -c 'cd "$(dirname "{}")" && python post-processing.py' \;
-    python3 combine.py
-   </code></pre>
+Once downloaded, place all source files under the `./data` directory.
 
+---
+
+### 3. Generate Task Data
+
+Navigate to the desired task directory and run the task generation script.  
+For example, to generate data for **Task 1.1 (Class-to-Definition)**:
+
+```bash
+cd Processing
+cd understanding              # Capability level
+cd 1_1_class2definition       # Specific task
+python3 task_generate.py
+```
+
+This will generate intermediate `.json` files inside the `./bench` folder.
+
+---
+
+### 4. Post-Process and Combine
+
+After generating raw samples, process and consolidate them into a final format:
+
+```bash
+cd ../../bench/bench_1_1       # Go to the relevant bench folder
+find . -type f -name "post-processing.py" -exec bash -c 'cd "$(dirname "{}")" && python post-processing.py' \;
+python3 combine.py
+```
+
+---
+
+Now the benchmark split for the selected task is ready.
+Repeat the steps for other tasks as needed.
+
+---
 
 <h2 id="citation">✍ Citation</h2>
 
-If you use OntoBench in your research, please cite:
+If you use OntoURL in your research, please cite:
 
+```bibtex
+@article{zhang2025ontourl,
+  title={OntoURL: A Benchmark for Evaluating Large Language Models on Symbolic Ontological Understanding, Reasoning and Learning},
+  author={Zhang, Xiao and Lai, Huiyuan and Meng, Qianru and Bos, Johan},
+  journal={arXiv preprint arXiv:2505.11031},
+  year={2025}
+}
+```
+
+---
 
 <h2 id="license">⚖️ License</h2>
 
-Because OntoURL uses open source data, its license is Creative Commons Attribution 4.0 International (CC BY 4.0)—you’re free to share and adapt the dataset provided that you give appropriate credit to the original source.
+OntoURL is released under the **Creative Commons Attribution 4.0 International (CC BY 4.0)** license. You are free to share and adapt the dataset with proper attribution.
+
+---
 
 <h2 id="acknowledgement">🙌 Acknowledgements</h2>
 
-Thanks all contributors. 
-Any valuable suggestions and comments are welcomed and acknowledged. 
+We thank all contributors to this project. Feedback and suggestions are warmly welcomed.
 
+---
 
 <h2 id="contact">📬 Contact</h2>
-For questions, feedback, or collaborations, please contact: xiao.zhang@rug.nl
 
+For questions, feedback, or collaborations, please contact:  
+📧 xiao.zhang@rug.nl
