@@ -2,20 +2,61 @@ import os
 import json
 import random
 import logging
+import argparse
+import warnings
 import re
+from pathlib import Path
+from typing import List, Dict, Tuple, Optional, Iterable
+from contextlib import ExitStack, redirect_stdout, redirect_stderr
+
 from rdflib import URIRef, RDF
-from owlready2 import World, ThingClass, Restriction, owl
+from owlready2 import World, ThingClass, Restriction, owl, onto_path, set_log_level
 from collections import defaultdict
 from itertools import islice
 
-MAX_QUESTIONS = 30000
-BASE_DIR = '../../../data'
-EXTENSIONS = ('.owl', '.rdf', '.rdfs', '.ttl')
 
-label_cache = {}
+# Caches
+label_cache: Dict[str, str] = {}
 
 
-def get_label(entity):
+def slugify_for_windows(name: str) -> str:
+    safe = []
+    prev_us = False
+    for ch in name:
+        if ch.isalnum() or ch in ("-", "."):
+            safe.append(ch)
+            prev_us = False
+        else:
+            if not prev_us:
+                safe.append("_")
+            prev_us = True
+    s = "".join(safe).strip("_")
+    return s or "unnamed"
+
+
+class _NullWriter:
+    def write(self, _):
+        return 0
+    def flush(self):
+        return None
+
+
+def silence_stdio(enabled: bool):
+    if not enabled:
+        class _Noop:
+            def __enter__(self):
+                return None
+            def __exit__(self, exc_type, exc, tb):
+                return False
+        return _Noop()
+    null = _NullWriter()
+    stack = ExitStack()
+    stack.enter_context(redirect_stdout(null))
+    stack.enter_context(redirect_stderr(null))
+    return stack
+
+
+def get_label(entity) -> str:
     key = str(entity.iri)
     if key not in label_cache:
         labs = getattr(entity, 'label', []) or getattr(entity, 'prefLabel', []) or []
@@ -23,53 +64,50 @@ def get_label(entity):
     return label_cache[key]
 
 
-# 将驼峰和下划线转为空格
-def humanize_relation(rel_name):
+def humanize_relation(rel_name: str) -> str:
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1 \2', rel_name)
     s2 = re.sub('([a-z0-9])([A-Z])', r'\1 \2', s1)
     return s2.replace('_', ' ').lower()
 
 
-def make_prompt(subj_label, rel_name):
+def make_prompt(subj_label: str, rel_name: str) -> str:
     templates = {
         'subclassOf': f"Which of the following classes is the superclass of '{subj_label}'?",
         'equivalentTo': f"Which of the following classes is equivalent to '{subj_label}'?",
         'disjointWith': f"Which of the following classes is disjoint with '{subj_label}'?",
         'complementOf': f"Which of the following classes is the complement of '{subj_label}'?",
         'unionOf': f"Which of the following classes is a member of the union defining '{subj_label}'?",
-        'intersectionOf': f"Which of the following classes is a member of the intersection defining '{subj_label}'?"
+        'intersectionOf': f"Which of the following classes is a member of the intersection defining '{subj_label}'?",
     }
     return templates.get(rel_name, f"Which of the following classes {humanize_relation(rel_name)} '{subj_label}'?")
 
 
 class RelationQuestionGenerator:
-    def __init__(self, triples, all_classes, metadata):
-        self.triples = triples
-        self.all_classes = all_classes
+    def __init__(self, triples: Iterable[Tuple[ThingClass, str, ThingClass]], all_classes: Iterable[ThingClass], metadata: Dict):
+        self.triples = list(triples)
+        self.all_classes = list(all_classes)
         self.meta = metadata
         self.disjoint_sets = defaultdict(set)
-        for c in all_classes:
+        for c in self.all_classes:
             for dis in getattr(c, 'disjoint_with', []):
                 if isinstance(dis, ThingClass):
                     self.disjoint_sets[c].add(dis)
 
-    def _get_distractors(self, obj, k):
+    def _get_distractors(self, obj: ThingClass, k: int) -> List[ThingClass]:
         obj_anc = self.meta[obj]['ancestors']
-        distractors = []
+        distractors: List[ThingClass] = []
         candidates = list(self.disjoint_sets[obj])
         random.shuffle(candidates)
         for c in candidates:
             if c is not obj and len(distractors) < k:
                 distractors.append(c)
-
         if len(distractors) < k:
             remaining = [c for c in self.all_classes if c is not obj and c not in obj_anc and c not in distractors]
             random.shuffle(remaining)
             distractors.extend(remaining[:k - len(distractors)])
-
         return distractors[:k]
 
-    def generate_all(self, max_q=MAX_QUESTIONS):
+    def generate_all(self, max_q: int) -> List[Dict]:
         questions = []
         letters = ['A', 'B', 'C', 'D']
         for subj, rel, obj in islice(self.triples, max_q):
@@ -89,27 +127,31 @@ class RelationQuestionGenerator:
                 'options': opts,
                 'correct_answer': correct,
                 'meta': {
-                    'iri': str(subj.iri),
-                    'label': get_label(subj),
+                    'subject_iri': str(subj.iri),
+                    'subject_label': get_label(subj),
+                    'subject_kind': 'class',
+                    'relation': rel,
+                    'object_iri': str(obj.iri),
+                    'object_label': get_label(obj),
+                    'object_kind': 'class',
+                    'class_context_iri': str(subj.iri),
+                    'class_context_label': get_label(subj),
                     'depth': m['depth'],
                     'sibling_count': m['siblings'],
                     'subclass_count': m['subclasses'],
                     'parent_count': m['parents'],
-                    'relation': rel,
-                    'object_iri': str(obj.iri)
                 }
             })
-            if len(questions) % 1000 == 0:
-                logging.info(f"Generated {len(questions)} questions")
             if len(questions) >= max_q:
                 break
         return questions
 
-def compute_ancestors(parent_map, all_classes):
-    ancestors_map = {c: set() for c in all_classes}
 
-    def get_ancestors(c):
-        if c in ancestors_map and ancestors_map[c]:
+def compute_ancestors(parent_map: Dict[ThingClass, List[ThingClass]], all_classes: Iterable[ThingClass]) -> Dict[ThingClass, set]:
+    ancestors_map: Dict[ThingClass, set] = {c: set() for c in all_classes}
+
+    def get_ancestors(c: ThingClass):
+        if ancestors_map[c]:
             return ancestors_map[c]
         anc = set()
         for p in parent_map[c]:
@@ -123,16 +165,13 @@ def compute_ancestors(parent_map, all_classes):
     return ancestors_map
 
 
-def extract_and_prepare(onto):
+def extract_and_prepare(onto) -> Tuple[List[ThingClass], List[Tuple[ThingClass, str, ThingClass]], Dict]:
     all_classes = list(onto.classes())
-    logging.info(f"Found {len(all_classes)} classes")
-
-    parent_map = {}
+    parent_map: Dict[ThingClass, List[ThingClass]] = {}
     for c in all_classes:
         try:
             parent_map[c] = [p for p in c.is_a if isinstance(p, ThingClass) and p != owl.Thing]
-        except Exception as e:
-            logging.warning(f"Skipping parents for {c}: {e}")
+        except Exception:
             parent_map[c] = []
 
     child_map = defaultdict(list)
@@ -142,7 +181,7 @@ def extract_and_prepare(onto):
 
     ancestors_map = compute_ancestors(parent_map, all_classes)
 
-    metadata = {}
+    metadata: Dict[ThingClass, Dict] = {}
     for c in all_classes:
         if parent_map[c]:
             try:
@@ -157,11 +196,11 @@ def extract_and_prepare(onto):
             'siblings': siblings,
             'subclasses': len(child_map.get(c, [])),
             'parents': len(parent_map[c]),
-            'ancestors': ancestors_map[c]
+            'ancestors': ancestors_map[c],
         }
 
     relations = {'subclassOf', 'equivalentTo', 'disjointWith', 'complementOf', 'unionOf', 'intersectionOf'}
-    triples = []
+    triples: List[Tuple[ThingClass, str, ThingClass]] = []
 
     for c in all_classes:
         try:
@@ -177,13 +216,11 @@ def extract_and_prepare(onto):
                 if isinstance(r, Restriction):
                     name = r.property.python_name
                     if name in relations:
-                        val = getattr(r, 'value', None) or getattr(r, 'some_values_from', None) or getattr(r,
-                                                                                                           'all_values_from',
-                                                                                                           None)
+                        val = getattr(r, 'value', None) or getattr(r, 'some_values_from', None) or getattr(r, 'all_values_from', None)
                         if isinstance(val, ThingClass):
                             triples.append((c, name, val))
-        except Exception as e:
-            logging.warning(f"Failed explicit triples for {c}: {e}")
+        except Exception:
+            pass
 
     try:
         for a, b in onto.disjoint_classes():
@@ -193,8 +230,8 @@ def extract_and_prepare(onto):
                 for y in Bs:
                     if isinstance(x, ThingClass) and isinstance(y, ThingClass):
                         triples.append((x, 'disjointWith', y))
-    except Exception as e:
-        logging.warning(f"Failed global disjoints: {e}")
+    except Exception:
+        pass
 
     graph = onto.world.as_rdflib_graph()
     for c in all_classes:
@@ -211,10 +248,9 @@ def extract_and_prepare(onto):
                             triples.append((c, local, ent))
                         node = graph.value(node, RDF.rest)
                         if node == obj:
-                            logging.warning(f"Cycle detected in RDF list for {c}")
                             break
-        except Exception as e:
-            logging.warning(f"Failed RDF list for {c}: {e}")
+        except Exception:
+            pass
 
     for prop in onto.object_properties():
         try:
@@ -224,49 +260,178 @@ def extract_and_prepare(onto):
                     for o in prop[c]:
                         if isinstance(o, ThingClass):
                             triples.append((c, name, o))
-        except Exception as e:
-            logging.warning(f"Failed object prop {prop}: {e}")
+        except Exception:
+            pass
 
     triples = list(set(triples))
-    logging.info(f"Extracted {len(triples)} unique triples")
     return all_classes, triples, metadata
 
 
-def process_owl_file(file_path, max_q=MAX_QUESTIONS):
-    world = World()
+class OntologyLoader:
+    def __init__(self, file_path: Path, load_imports: bool = True, onto_paths: Optional[List[Path]] = None):
+        self.file_path = Path(file_path)
+        self.world = World()
+        self.onto = None
+        self.load_imports = load_imports
+        if onto_paths:
+            for p in onto_paths:
+                try:
+                    pp = str(Path(p).resolve())
+                    if pp not in self.world._ontology_path:
+                        self.world._ontology_path.append(pp)
+                    if pp not in onto_path:
+                        onto_path.append(pp)
+                except Exception:
+                    pass
+
+    def load(self):
+        iri = f"file://{self.file_path.resolve()}"
+        onto = self.world.get_ontology(iri)
+        try:
+            if self.load_imports:
+                onto.load()
+            else:
+                onto.load(only_local=True)
+        except Exception as e:
+            if self.load_imports:
+                logging.warning(f"Failed loading ontology with imports; retrying local-only. File: {self.file_path} ({e})")
+                try:
+                    onto.load(only_local=True)
+                except Exception as e2:
+                    logging.error(f"Failed loading ontology local-only: {self.file_path} ({e2})")
+                    return None
+            else:
+                logging.error(f"Failed loading ontology local-only: {self.file_path} ({e})")
+                return None
+        self.onto = onto
+        return onto
+
+
+def save_questions(questions: List[Dict], save_path: Path) -> None:
+    save_path.parent.mkdir(parents=True, exist_ok=True)
+    with save_path.open('w', encoding='utf-8') as f:
+        json.dump(questions, f, ensure_ascii=False, indent=4)
+
+
+def process_owl_file(
+    file_path: Path,
+    input_root: Path,
+    output_root: Path,
+    max_questions: int,
+    load_imports: bool,
+    concept_scope: str,
+    onto_paths: Optional[List[Path]],
+    suppress_io: bool,
+) -> None:
     try:
-        onto = world.get_ontology(f"file://{os.path.abspath(file_path)}").load()
-    except Exception as e:
-        logging.error(f"Failed to load ontology {file_path}: {e}")
+        rel = file_path.relative_to(input_root)
+    except Exception:
+        rel = file_path.name
+    rel_parts = list(Path(rel).parts)
+    safe_parts = [slugify_for_windows(p) for p in rel_parts[:-1]]
+    safe_stem = slugify_for_windows(Path(rel_parts[-1]).stem if rel_parts else file_path.stem)
+    out_dir = output_root.joinpath(*safe_parts, safe_stem)
+    out_file = out_dir / f"relations_{safe_stem}.json"
+
+    loader = OntologyLoader(file_path, load_imports=load_imports, onto_paths=onto_paths)
+    with silence_stdio(suppress_io):
+        onto = loader.load()
+    if not onto:
+        logging.error(f"Failed to load ontology {file_path}")
         return
 
-    all_classes, triples, metadata = extract_and_prepare(onto)
-    gen = RelationQuestionGenerator(triples, all_classes, metadata)
-    questions = gen.generate_all(max_q)
+    with silence_stdio(suppress_io):
+        all_classes, triples, metadata = extract_and_prepare(onto)
+        # Filter by concept scope (subject side): all, native, imported
+        if concept_scope != 'all':
+            def is_native(c: ThingClass) -> bool:
+                return getattr(getattr(c, 'namespace', None), 'ontology', None) is onto
+            def is_imported(c: ThingClass) -> bool:
+                o = getattr(getattr(c, 'namespace', None), 'ontology', None)
+                return (o is not None) and (o is not onto)
+            if concept_scope == 'native':
+                allowed = {c for c in all_classes if is_native(c)}
+            else:
+                allowed = {c for c in all_classes if is_imported(c)}
+            triples = [t for t in triples if t[0] in allowed]
+        gen = RelationQuestionGenerator(triples, all_classes, metadata)
+        questions = gen.generate_all(max_questions)
 
-    out_dir = os.path.dirname(file_path).replace('data', 'bench/bench_1_2')
-    os.makedirs(out_dir, exist_ok=True)
-    save_path = os.path.join(out_dir, f'relations_opt_{os.path.basename(file_path)}.json')
-    try:
-        with open(save_path, 'w', encoding='utf-8') as f:
-            json.dump(questions, f, ensure_ascii=False, indent=4)
-        logging.info(f"Saved {len(questions)} questions to {save_path}")
-    except Exception as e:
-        logging.error(f"Failed to save questions for {file_path}: {e}")
-    finally:
-        world.close()
-        label_cache.clear()
+    logging.info(f"Generated {len(questions)} questions from {file_path.name}.")
+    if questions:
+        save_questions(questions, out_file)
 
 
-if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s: %(message)s')
-    random.seed(42)
+def main():
+    parser = argparse.ArgumentParser(description='Generate class-to-class relation MCQs from ontologies.')
+    parser.add_argument('--input', type=str, required=True, help='Input ontology file or directory (.owl/.rdf/.rdfs/.ttl).')
+    parser.add_argument('--output', type=str, required=True, help='Output root directory for Windows-safe mirrored folders and JSON.')
+    parser.add_argument('--seed', type=int, default=42, help='Random seed.')
+    parser.add_argument('--max-questions', type=int, default=30000, help='Maximum questions per ontology.')
+    parser.add_argument('--concept-scope', type=str, choices=['all', 'native', 'imported'], default='all', help='Filter by origin of subject classes: all/native/imported.')
+    parser.add_argument('--no-imports', action='store_true', help='Do not load imports (local-only).')
+    parser.add_argument('--onto-path', action='append', default=None, help='Local directories to resolve owl:imports (can repeat).')
+    parser.add_argument('--no-warnings', action='store_true', help='Suppress warnings and library stdout/stderr noise.')
+    parser.add_argument('--log', type=str, default='info', help='Logging level: debug, info, warning, error.')
 
-    files = [os.path.join(r, f) for r, _, fs in os.walk(BASE_DIR)
-             for f in fs if f.lower().endswith(EXTENSIONS)]
+    args = parser.parse_args()
+
+    level = getattr(logging, args.log.upper(), logging.INFO)
+    logging.basicConfig(
+        level=level,
+        format='%(asctime)s %(levelname)s: %(message)s',
+        handlers=[
+            logging.StreamHandler(),
+            logging.FileHandler('process.log', 'w', 'utf-8'),
+        ],
+    )
+
+    if args.no_warnings:
+        try:
+            set_log_level(0)
+        except Exception:
+            pass
+        warnings.filterwarnings('ignore')
+        for name in ('owlready2', 'rdflib'):
+            try:
+                logging.getLogger(name).setLevel(logging.ERROR)
+            except Exception:
+                pass
+
+    random.seed(args.seed)
+
+    input_path = Path(args.input)
+    output_root = Path(args.output)
+    output_root.mkdir(parents=True, exist_ok=True)
+    exts = ('.owl', '.rdf', '.rdfs', '.ttl')
+
+    files: List[Path] = []
+    if input_path.is_file() and input_path.suffix.lower() in exts:
+        files = [input_path]
+        input_root = input_path.parent
+    else:
+        input_root = input_path
+        for root, _, filenames in os.walk(str(input_path)):
+            for fname in filenames:
+                if fname.lower().endswith(exts):
+                    files.append(Path(root) / fname)
+
     logging.info(f"Found {len(files)} files to process.")
     for fp in files:
         try:
-            process_owl_file(fp, MAX_QUESTIONS)
+            process_owl_file(
+                file_path=fp,
+                input_root=input_root,
+                output_root=output_root,
+                max_questions=args.max_questions,
+                load_imports=not args.no_imports,
+                concept_scope=args.concept_scope,
+                onto_paths=[Path(p) for p in args.onto_path] if args.onto_path else None,
+                suppress_io=args.no_warnings,
+            )
         except Exception as e:
             logging.error(f"{fp} failed: {e}")
+
+
+if __name__ == '__main__':
+    main()

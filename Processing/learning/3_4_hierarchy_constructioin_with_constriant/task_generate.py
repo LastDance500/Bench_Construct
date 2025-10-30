@@ -3,24 +3,28 @@ import os
 import random
 import logging
 import uuid
+import argparse
+import warnings
+from pathlib import Path
 from collections import deque
 
 import rdflib
 import owlready2
 from owlready2 import *
 
+# ---------- configuration ----------
 CONFIG = {
-    'BASE_DIR': '../../../data',
     'EXTENSIONS': ('.owl', '.rdf', '.rdfs', '.ttl', '.xml', '.n3'),
-    'MAX_SUBGRAPH_SIZE': 15,
-    'MIN_SUBGRAPH_SIZE': 8,
+    'MAX_SUBGRAPH_SIZE': 15,  # 最大子图大小（上限）
+    'MIN_SUBGRAPH_SIZE': 8,   # 最小子图大小（下限）
     'DEPTH_OPTIONS': [2, 3, 4, 5, 6, 7, 8],
     'MAX_SUBGRAPH_RETRIES': 20,
     'NUM_PROPERTY_SETS_MAX': 100,
-    'PROPERTIES_PER_SET_MAX': 10,
-    'MIN_PROPERTIES_PER_SET': 5
+    'PROPERTIES_PER_SET_MAX': 10,  # 最大类集大小（上限）
+    'MIN_PROPERTIES_PER_SET': 5    # 最小类集大小（下限）
 }
 
+# ---------- 兼容性补丁 ----------
 if not hasattr(owlready2.World, '_get_obj_triples'):
     def _stub_get_obj_triples(self, *args, **kwargs):
         return []
@@ -28,6 +32,7 @@ if not hasattr(owlready2.World, '_get_obj_triples'):
 if not hasattr(owlready2.World, '_get_obj_triples_cspo_cspo'):
     owlready2.World._get_obj_triples_cspo_cspo = owlready2.World._get_obj_triples
 
+# ---------- logging ----------
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -37,8 +42,10 @@ logging.basicConfig(
     ]
 )
 
+# ---------- 全局缓存 ----------
 definition_cache = {}
 
+# ---------- helpers ----------
 def get_label(entity):
     labels = getattr(entity, 'label', []) or []
     return labels[0] if labels else getattr(entity, 'name', str(entity))
@@ -79,9 +86,11 @@ def is_valid_property(prop, onto):
              isinstance(prop, owlready2.DataPropertyClass)) and
             prop in onto.properties())
 
+# ---------- subgraph extraction ----------
 def get_subgraph_around_properties(onto, input_properties, depth=2):
     obj_props = [p for p in input_properties if is_valid_property(p, onto)]
 
+    # 初始类别集
     initial_classes = set()
     for prop in obj_props:
         for d in prop.domain:
@@ -91,13 +100,14 @@ def get_subgraph_around_properties(onto, input_properties, depth=2):
             if isinstance(r, ThingClass) and r != Thing:
                 initial_classes.add(r)
 
+    current_depth = min(depth, max(CONFIG['DEPTH_OPTIONS']))
     for attempt in range(CONFIG['MAX_SUBGRAPH_RETRIES'] + 1):
         related_classes = set()
         constraints = []
         annotations = {}
         visited = set()
         queue = deque([(cls, 0) for cls in initial_classes])
-        target = depth
+        target = current_depth
 
         while queue and len(related_classes) < CONFIG['MAX_SUBGRAPH_SIZE']:
             cls, d = queue.popleft()
@@ -113,10 +123,12 @@ def get_subgraph_around_properties(onto, input_properties, depth=2):
                         queue.append((sup, d+1))
                 for sub in cls.subclasses():
                     queue.append((sub, d+1))
+        # 检查最小子图规模
         if len(related_classes) < CONFIG['MIN_SUBGRAPH_SIZE']:
-            logging.warning(f'Subgraph too small ({len(related_classes)}), retrying')
-            target = min(target+1, max(CONFIG['DEPTH_OPTIONS']))
+            logging.warning(f'Subgraph too small ({len(related_classes)}), retrying with deeper search')
+            current_depth = min(current_depth + 1, max(CONFIG['DEPTH_OPTIONS']))
             continue
+        # 收集约束
         for prop in obj_props:
             for domain in prop.domain:
                 if domain in related_classes:
@@ -124,23 +136,25 @@ def get_subgraph_around_properties(onto, input_properties, depth=2):
             for range_ in prop.range:
                 if range_ in related_classes:
                     constraints.append((prop, 'range', range_))
-            if getattr(prop, 'is_functional', False):
+            if isinstance(prop, FunctionalProperty):
                 constraints.append((prop, 'functional', True))
         if constraints:
             logging.info(f'Subgraph ready with {len(related_classes)} classes and {len(constraints)} constraints')
             return related_classes, constraints, annotations
-        target = min(target+1, max(CONFIG['DEPTH_OPTIONS']))
-        logging.warning(f'No constraints found, retrying at depth {target}')
+        current_depth = min(current_depth + 1, max(CONFIG['DEPTH_OPTIONS']))
+        logging.warning(f'No constraints found, retrying at depth {current_depth}')
 
     logging.error('Failed to build constraint subgraph')
     return set(), [], {}
 
+# ---------- constraint extraction ----------
 def generate_constraint_triples(onto, input_properties):
     classes, constraints, annotations = get_subgraph_around_properties(onto, input_properties)
     if not classes or not constraints:
         logging.warning('Empty classes or constraints, skip')
         return None
 
+    # 格式化三元组（携带 IRI 元信息，保证唯一性）
     triples = []
     for prop, ctype, val in sorted(
         constraints,
@@ -148,8 +162,16 @@ def generate_constraint_triples(onto, input_properties):
     ):
         p_lbl = get_label(prop)
         v_lbl = 'True' if ctype == 'functional' else get_label(val)
-        triples.append({'triple': (p_lbl, ctype, v_lbl), 'text': f'{p_lbl} {ctype} {v_lbl}.'})
+        triples.append({
+            'triple': (p_lbl, ctype, v_lbl),
+            'text': f'{p_lbl} {ctype} {v_lbl}.',
+            'meta': {
+                'property_iri': str(prop.iri) if hasattr(prop, 'iri') else None,
+                'value_iri': (str(val.iri) if isinstance(val, ThingClass) and hasattr(val, 'iri') else None)
+            }
+        })
 
+    # 类定义列表
     classes_def = []
     for c in sorted(classes, key=get_label):
         dfn = get_definition(c)
@@ -163,6 +185,7 @@ def generate_constraint_triples(onto, input_properties):
         'annotations': {get_label(e): annotations[e] for e in annotations}
     }
 
+# ---------- task description ----------
 def describe_constraint_task(classes, properties, annotations):
     lines = ['## Property Constraint Learning Task',
              'Given classes and properties, generate property constraints.']
@@ -182,15 +205,29 @@ def describe_constraint_task(classes, properties, annotations):
     return '\n'.join(lines)
 
 def process_for_constraint_task(
-    file_path,
+    file_path: Path,
+    input_root: Path,
+    output_root: Path,
     num_property_sets_max=CONFIG['NUM_PROPERTY_SETS_MAX'],
-    properties_per_set_max=CONFIG['PROPERTIES_PER_SET_MAX']
+    properties_per_set_max=CONFIG['PROPERTIES_PER_SET_MAX'],
+    concept_scope: str = 'all'
 ):
     logging.info(f'Processing: {file_path}')
-    onto = load_ontology_with_fallback(file_path)
+    onto = load_ontology_with_fallback(str(file_path))
     if not onto:
         raise RuntimeError(f'Load failed: {file_path}')
     all_props = [p for p in onto.properties() if is_valid_property(p, onto)]
+    # concept-scope on properties
+    if concept_scope != 'all':
+        def is_native(ent):
+            return getattr(getattr(ent, 'namespace', None), 'ontology', None) is onto
+        def is_imported(ent):
+            o = getattr(getattr(ent, 'namespace', None), 'ontology', None)
+            return (o is not None) and (o is not onto)
+        if concept_scope == 'native':
+            all_props = [p for p in all_props if is_native(p)]
+        else:
+            all_props = [p for p in all_props if is_imported(p)]
     if len(all_props) < CONFIG['MIN_PROPERTIES_PER_SET']:
         logging.warning(f'Not enough properties ({len(all_props)}) to generate tasks')
         return
@@ -219,13 +256,21 @@ def process_for_constraint_task(
         logging.warning('No tasks generated; skipping save')
         return
 
-    out_dir = os.path.dirname(file_path).replace('data', 'bench/bench_3_5')
-    os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, f'constraint_{os.path.basename(file_path)}.json')
+    try:
+        rel = file_path.relative_to(input_root)
+    except Exception:
+        rel = file_path.name
+    rel_parts = list(Path(rel).parts)
+    safe_parts = [p for p in rel_parts[:-1]]
+    safe_stem = Path(rel_parts[-1]).stem if rel_parts else file_path.stem
+    out_dir = output_root.joinpath(*safe_parts, safe_stem)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / f'constraint_{safe_stem}.json'
     with open(out_path, 'w', encoding='utf-8') as f:
         json.dump(tasks, f, ensure_ascii=False, indent=2)
     logging.info(f'Saved {len(tasks)} tasks to {out_path}')
 
+# ---------- 加载与转换 ----------
 def rdflib_to_owlready(g):
     tmp = f'tmp_{uuid.uuid4()}.owl'
     g.serialize(tmp, format='xml')
@@ -248,15 +293,38 @@ def load_ontology_with_fallback(file_path):
     return None
 
 
-if __name__ == '__main__':
-    random.seed(42)
+def main():
+    parser = argparse.ArgumentParser(description='Generate property constraint tasks (domain, range, functional).')
+    parser.add_argument('--input', type=str, required=True, help='Input ontology file or directory.')
+    parser.add_argument('--output', type=str, required=True, help='Output root (Windows-safe mirrored).')
+    parser.add_argument('--seed', type=int, default=42, help='Random seed.')
+    parser.add_argument('--concept-scope', type=str, choices=['all','native','imported'], default='all', help='Filter by origin of properties.')
+    parser.add_argument('--log', type=str, default='info', help='Logging level: debug, info, warning, error.')
+    args = parser.parse_args()
+
+    level = getattr(logging, args.log.upper(), logging.INFO)
+    logging.basicConfig(level=level, format='%(asctime)s %(levelname)s: %(message)s')
+    random.seed(args.seed)
+
+    input_path = Path(args.input)
+    output_root = Path(args.output)
+    output_root.mkdir(parents=True, exist_ok=True)
+    exts = CONFIG['EXTENSIONS']
     files = []
-    for root, _, fs in os.walk(CONFIG['BASE_DIR']):
-        for fn in fs:
-            if fn.lower().endswith(CONFIG['EXTENSIONS']):
-                files.append(os.path.join(root, fn))
+    if input_path.is_file() and input_path.suffix.lower() in exts:
+        files = [input_path]
+        input_root = input_path.parent
+    else:
+        input_root = input_path
+        for root, _, fs in os.walk(str(input_path)):
+            for fn in fs:
+                if fn.lower().endswith(exts):
+                    files.append(Path(root)/fn)
     for fp in files:
         try:
-            process_for_constraint_task(fp)
+            process_for_constraint_task(fp, input_root, output_root, concept_scope=args.concept_scope)
         except Exception as e:
             logging.error(f'Error: {e}')
+
+if __name__ == '__main__':
+    main()
