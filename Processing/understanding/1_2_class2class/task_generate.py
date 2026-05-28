@@ -5,6 +5,7 @@ import logging
 import argparse
 import warnings
 import re
+import sys
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional, Iterable
 from contextlib import ExitStack, redirect_stdout, redirect_stderr
@@ -12,26 +13,34 @@ from contextlib import ExitStack, redirect_stdout, redirect_stderr
 from rdflib import URIRef, RDF
 from owlready2 import World, ThingClass, Restriction, owl, onto_path, set_log_level
 from collections import defaultdict
-from itertools import islice
+
+
+PROCESSING_ROOT = Path(__file__).resolve().parents[2]
+if str(PROCESSING_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROCESSING_ROOT))
+
+from common import (
+    BaseOntologyLoader,
+    build_mirrored_output_dir,
+    class_stats,
+    configure_logging,
+    discover_ontology_files,
+    empty_marker_path,
+    FileProcessingTimeout,
+    file_timeout,
+    get_label,
+    limit_questions_by_subject,
+    resolve_onto_paths,
+    save_empty_marker,
+    save_json,
+    slugify_for_windows,
+    suppress_library_noise,
+)
 
 
 # Caches
 label_cache: Dict[str, str] = {}
-
-
-def slugify_for_windows(name: str) -> str:
-    safe = []
-    prev_us = False
-    for ch in name:
-        if ch.isalnum() or ch in ("-", "."):
-            safe.append(ch)
-            prev_us = False
-        else:
-            if not prev_us:
-                safe.append("_")
-            prev_us = True
-    s = "".join(safe).strip("_")
-    return s or "unnamed"
+MAX_DISTRACTOR_CANDIDATES = 1000
 
 
 class _NullWriter:
@@ -56,12 +65,38 @@ def silence_stdio(enabled: bool):
     return stack
 
 
-def get_label(entity) -> str:
+def cached_label(entity) -> str:
     key = str(entity.iri)
     if key not in label_cache:
-        labs = getattr(entity, 'label', []) or getattr(entity, 'prefLabel', []) or []
-        label_cache[key] = labs[0] if labs else entity.name
+        label_cache[key] = get_label(entity)
     return label_cache[key]
+
+
+def normalize_text(text: str) -> str:
+    return re.sub(r"\s+", " ", str(text or "").replace("_", " ").replace("-", " ")).strip().lower()
+
+
+def label_tokens(text: str) -> set:
+    return {token for token in re.split(r"[^a-z0-9]+", normalize_text(text)) if len(token) >= 3}
+
+
+def labels_too_similar(left: str, right: str) -> bool:
+    left_tokens = label_tokens(left)
+    right_tokens = label_tokens(right)
+    if not left_tokens or not right_tokens:
+        return normalize_text(left) == normalize_text(right)
+    return len(left_tokens & right_tokens) / len(left_tokens | right_tokens) > 0.72
+
+
+def is_generic_top_class(entity, metadata: Dict) -> bool:
+    label = cached_label(entity).strip()
+    if not label or label == "Unnamed":
+        return True
+    normalized = normalize_text(label).strip(".")
+    if normalized in {"thing", "motif", "function", "person", "type", "class", "entity"}:
+        return True
+    alpha = re.sub(r"[^A-Za-z]", "", label)
+    return bool(alpha) and len(alpha) >= 4 and alpha.isupper() and metadata.get(entity, {}).get("depth", 0) <= 2
 
 
 def humanize_relation(rel_name: str) -> str:
@@ -94,69 +129,99 @@ class RelationQuestionGenerator:
                     self.disjoint_sets[c].add(dis)
 
     def _get_distractors(self, obj: ThingClass, k: int) -> List[ThingClass]:
+        if obj not in self.meta:
+            return []
         obj_anc = self.meta[obj]['ancestors']
         distractors: List[ThingClass] = []
         candidates = list(self.disjoint_sets[obj])
         random.shuffle(candidates)
         for c in candidates:
-            if c is not obj and len(distractors) < k:
+            if c is not obj and not is_generic_top_class(c, self.meta) and len(distractors) < k:
                 distractors.append(c)
         if len(distractors) < k:
-            remaining = [c for c in self.all_classes if c is not obj and c not in obj_anc and c not in distractors]
+            obj_depth = self.meta[obj]['depth']
+            remaining = [
+                c for c in self.all_classes
+                if c is not obj
+                and c not in obj_anc
+                and c not in distractors
+                and not is_generic_top_class(c, self.meta)
+                and abs(self.meta.get(c, {}).get('depth', obj_depth) - obj_depth) <= 1
+                and not labels_too_similar(cached_label(c), cached_label(obj))
+            ]
             random.shuffle(remaining)
+            remaining = remaining[:MAX_DISTRACTOR_CANDIDATES]
+            remaining.sort(key=lambda c: (abs(self.meta.get(c, {}).get('depth', obj_depth) - obj_depth), cached_label(c)))
             distractors.extend(remaining[:k - len(distractors)])
         return distractors[:k]
 
     def generate_all(self, max_q: int) -> List[Dict]:
         questions = []
         letters = ['A', 'B', 'C', 'D']
-        for subj, rel, obj in islice(self.triples, max_q):
-            m = self.meta[subj]
+        triples = list(self.triples)
+        random.shuffle(triples)
+        buffer_limit = max_q * 4 if max_q else None
+        for subj, rel, obj in triples:
+            if subj not in self.meta or obj not in self.meta:
+                continue
+            if rel == 'subclassOf' and is_generic_top_class(obj, self.meta):
+                continue
+            if is_generic_top_class(subj, self.meta) or is_generic_top_class(obj, self.meta):
+                continue
+            stats = class_stats(subj, self.all_classes)
             distractors = self._get_distractors(obj, 3)
+            if len(distractors) < 3:
+                continue
             options = [obj] + distractors
             random.shuffle(options)
             opts = []
             correct = None
             for i, choice in enumerate(options):
-                opts.append({'option_letter': letters[i], 'label': get_label(choice)})
+                opts.append({'option_letter': letters[i], 'label': cached_label(choice)})
                 if choice is obj:
                     correct = letters[i]
-            prompt = make_prompt(get_label(subj), rel)
+            labels = [o['label'] for o in opts]
+            if len({normalize_text(label) for label in labels}) != len(labels):
+                continue
+            prompt = make_prompt(cached_label(subj), rel)
             questions.append({
                 'prompt': prompt,
                 'options': opts,
                 'correct_answer': correct,
                 'meta': {
                     'subject_iri': str(subj.iri),
-                    'subject_label': get_label(subj),
+                    'subject_label': cached_label(subj),
                     'subject_kind': 'class',
                     'relation': rel,
                     'object_iri': str(obj.iri),
-                    'object_label': get_label(obj),
+                    'object_label': cached_label(obj),
                     'object_kind': 'class',
                     'class_context_iri': str(subj.iri),
-                    'class_context_label': get_label(subj),
-                    'depth': m['depth'],
-                    'sibling_count': m['siblings'],
-                    'subclass_count': m['subclasses'],
-                    'parent_count': m['parents'],
+                    'class_context_label': cached_label(subj),
+                    'depth': stats.depth,
+                    'sibling_count': stats.sibling_count,
+                    'subclass_count': stats.subclass_count,
+                    'parent_count': stats.parent_count,
                 }
             })
-            if len(questions) >= max_q:
+            if buffer_limit and len(questions) >= buffer_limit:
                 break
-        return questions
+        return limit_questions_by_subject(questions, max_q)
 
 
 def compute_ancestors(parent_map: Dict[ThingClass, List[ThingClass]], all_classes: Iterable[ThingClass]) -> Dict[ThingClass, set]:
     ancestors_map: Dict[ThingClass, set] = {c: set() for c in all_classes}
 
     def get_ancestors(c: ThingClass):
+        if c not in ancestors_map:
+            return set()
         if ancestors_map[c]:
             return ancestors_map[c]
         anc = set()
         for p in parent_map[c]:
-            anc.add(p)
-            anc.update(get_ancestors(p))
+            if p in ancestors_map:
+                anc.add(p)
+                anc.update(get_ancestors(p))
         ancestors_map[c] = anc
         return anc
 
@@ -205,7 +270,8 @@ def extract_and_prepare(onto) -> Tuple[List[ThingClass], List[Tuple[ThingClass, 
     for c in all_classes:
         try:
             for p in parent_map[c]:
-                triples.append((c, 'subclassOf', p))
+                if p != owl.Thing:
+                    triples.append((c, 'subclassOf', p))
             for eq in getattr(c, 'equivalent_to', []):
                 if isinstance(eq, ThingClass):
                     triples.append((c, 'equivalentTo', eq))
@@ -267,50 +333,12 @@ def extract_and_prepare(onto) -> Tuple[List[ThingClass], List[Tuple[ThingClass, 
     return all_classes, triples, metadata
 
 
-class OntologyLoader:
-    def __init__(self, file_path: Path, load_imports: bool = True, onto_paths: Optional[List[Path]] = None):
-        self.file_path = Path(file_path)
-        self.world = World()
-        self.onto = None
-        self.load_imports = load_imports
-        if onto_paths:
-            for p in onto_paths:
-                try:
-                    pp = str(Path(p).resolve())
-                    if pp not in self.world._ontology_path:
-                        self.world._ontology_path.append(pp)
-                    if pp not in onto_path:
-                        onto_path.append(pp)
-                except Exception:
-                    pass
-
-    def load(self):
-        iri = f"file://{self.file_path.resolve()}"
-        onto = self.world.get_ontology(iri)
-        try:
-            if self.load_imports:
-                onto.load()
-            else:
-                onto.load(only_local=True)
-        except Exception as e:
-            if self.load_imports:
-                logging.warning(f"Failed loading ontology with imports; retrying local-only. File: {self.file_path} ({e})")
-                try:
-                    onto.load(only_local=True)
-                except Exception as e2:
-                    logging.error(f"Failed loading ontology local-only: {self.file_path} ({e2})")
-                    return None
-            else:
-                logging.error(f"Failed loading ontology local-only: {self.file_path} ({e})")
-                return None
-        self.onto = onto
-        return onto
+class OntologyLoader(BaseOntologyLoader):
+    pass
 
 
 def save_questions(questions: List[Dict], save_path: Path) -> None:
-    save_path.parent.mkdir(parents=True, exist_ok=True)
-    with save_path.open('w', encoding='utf-8') as f:
-        json.dump(questions, f, ensure_ascii=False, indent=4)
+    save_json(questions, save_path, description="questions")
 
 
 def process_owl_file(
@@ -323,15 +351,15 @@ def process_owl_file(
     onto_paths: Optional[List[Path]],
     suppress_io: bool,
 ) -> None:
-    try:
-        rel = file_path.relative_to(input_root)
-    except Exception:
-        rel = file_path.name
-    rel_parts = list(Path(rel).parts)
-    safe_parts = [slugify_for_windows(p) for p in rel_parts[:-1]]
-    safe_stem = slugify_for_windows(Path(rel_parts[-1]).stem if rel_parts else file_path.stem)
-    out_dir = output_root.joinpath(*safe_parts, safe_stem)
+    out_dir, safe_stem = build_mirrored_output_dir(file_path, input_root, output_root)
     out_file = out_dir / f"relations_{safe_stem}.json"
+    empty_path = empty_marker_path(out_dir, "relations", safe_stem)
+    if out_file.exists():
+        logging.info("Skip existing: %s", out_file)
+        return
+    if empty_path.exists():
+        logging.info("Skip empty ontology marker: %s", empty_path)
+        return
 
     loader = OntologyLoader(file_path, load_imports=load_imports, onto_paths=onto_paths)
     with silence_stdio(suppress_io):
@@ -360,6 +388,13 @@ def process_owl_file(
     logging.info(f"Generated {len(questions)} questions from {file_path.name}.")
     if questions:
         save_questions(questions, out_file)
+    else:
+        save_empty_marker(
+            empty_path,
+            source_file=file_path,
+            reason="no_valid_class_relation_questions",
+            extra={"classes": len(all_classes), "triples": len(triples)},
+        )
 
 
 def main():
@@ -368,6 +403,7 @@ def main():
     parser.add_argument('--output', type=str, required=True, help='Output root directory for Windows-safe mirrored folders and JSON.')
     parser.add_argument('--seed', type=int, default=42, help='Random seed.')
     parser.add_argument('--max-questions', type=int, default=30000, help='Maximum questions per ontology.')
+    parser.add_argument('--file-timeout-seconds', type=int, default=0, help='Skip a single ontology file if processing exceeds this many seconds (0 means no timeout).')
     parser.add_argument('--concept-scope', type=str, choices=['all', 'native', 'imported'], default='all', help='Filter by origin of subject classes: all/native/imported.')
     parser.add_argument('--no-imports', action='store_true', help='Do not load imports (local-only).')
     parser.add_argument('--onto-path', action='append', default=None, help='Local directories to resolve owl:imports (can repeat).')
@@ -377,26 +413,8 @@ def main():
     args = parser.parse_args()
 
     level = getattr(logging, args.log.upper(), logging.INFO)
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s %(levelname)s: %(message)s',
-        handlers=[
-            logging.StreamHandler(),
-            logging.FileHandler('process.log', 'w', 'utf-8'),
-        ],
-    )
-
-    if args.no_warnings:
-        try:
-            set_log_level(0)
-        except Exception:
-            pass
-        warnings.filterwarnings('ignore')
-        for name in ('owlready2', 'rdflib'):
-            try:
-                logging.getLogger(name).setLevel(logging.ERROR)
-            except Exception:
-                pass
+    configure_logging(args.log, "process.log")
+    suppress_library_noise(args.no_warnings)
 
     random.seed(args.seed)
 
@@ -405,30 +423,24 @@ def main():
     output_root.mkdir(parents=True, exist_ok=True)
     exts = ('.owl', '.rdf', '.rdfs', '.ttl')
 
-    files: List[Path] = []
-    if input_path.is_file() and input_path.suffix.lower() in exts:
-        files = [input_path]
-        input_root = input_path.parent
-    else:
-        input_root = input_path
-        for root, _, filenames in os.walk(str(input_path)):
-            for fname in filenames:
-                if fname.lower().endswith(exts):
-                    files.append(Path(root) / fname)
+    files, input_root = discover_ontology_files(input_path, exts)
 
     logging.info(f"Found {len(files)} files to process.")
     for fp in files:
         try:
-            process_owl_file(
-                file_path=fp,
-                input_root=input_root,
-                output_root=output_root,
-                max_questions=args.max_questions,
-                load_imports=not args.no_imports,
-                concept_scope=args.concept_scope,
-                onto_paths=[Path(p) for p in args.onto_path] if args.onto_path else None,
-                suppress_io=args.no_warnings,
-            )
+            with file_timeout(args.file_timeout_seconds):
+                process_owl_file(
+                    file_path=fp,
+                    input_root=input_root,
+                    output_root=output_root,
+                    max_questions=args.max_questions,
+                    load_imports=not args.no_imports,
+                    concept_scope=args.concept_scope,
+                    onto_paths=resolve_onto_paths(args.onto_path),
+                    suppress_io=args.no_warnings,
+                )
+        except FileProcessingTimeout as e:
+            logging.error("Timeout processing %s: %s", fp, e)
         except Exception as e:
             logging.error(f"{fp} failed: {e}")
 

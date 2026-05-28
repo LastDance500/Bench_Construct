@@ -1,0 +1,9 @@
+.DS_Store
+.idea/
+__pycache__/
+*.py[cod]
+*.log
+process_*.log
+.env
+.venv/
+bench/**/process_*.log

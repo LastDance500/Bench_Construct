@@ -1,118 +1,168 @@
-import json
-import os
 import random
 import logging
 import argparse
-import warnings
+import sys
 from pathlib import Path
 from typing import List, Dict, Optional
-from owlready2 import World, ThingClass, owl, onto_path, set_log_level
+from owlready2 import ThingClass, owl
+
+
+PROCESSING_ROOT = Path(__file__).resolve().parents[2]
+if str(PROCESSING_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROCESSING_ROOT))
+
+from common import (
+    BaseOntologyLoader,
+    build_mirrored_output_dir,
+    class_depth,
+    class_stats,
+    configure_logging,
+    discover_ontology_files,
+    empty_marker_path,
+    FileProcessingTimeout,
+    file_timeout,
+    get_definition,
+    get_label,
+    global_class_metrics,
+    resolve_onto_paths,
+    save_empty_marker,
+    save_json,
+    selection_weight,
+    siblings as class_siblings,
+    suppress_library_noise,
+)
 
 # 全局缓存
 label_cache = {}
+ancestor_cache = {}
+descendant_cache = {}
+equivalent_cache = {}
+MAX_DISTRACTOR_SCAN = 1000
 
-def get_label(entity):
-    """
-    取 rdfs:label 或 skos:prefLabel，fallback 到 entity.name
-    """
-    key = str(entity.iri)
-    if key in label_cache:
-        return label_cache[key]
-    labs = getattr(entity, "label", []) or getattr(entity, "prefLabel", [])
-    label = labs[0] if labs else entity.name
-    label_cache[key] = label
-    return label
+PROPP_EXCLUDED_LABELS = {
+    'eTrap motif',
+    'eTRAP motif',
+    'eTRAP added motif',
+    'Linking from AaTh-Numbers to ATU-Numbers',
+    'Linking back to the ATU source',
+}
+
+def cached_label(entity):
+    key = str(getattr(entity, 'iri', str(entity)))
+    if key not in label_cache:
+        label_cache[key] = get_label(entity)
+    return label_cache[key]
+
+
+def normalize_label(text: str) -> str:
+    return " ".join(str(text or "").replace("_", " ").replace("-", " ").lower().split())
+
+
+def label_tokens(text: str) -> set[str]:
+    return {token for token in normalize_label(text).split() if len(token) >= 3}
+
+
+def labels_too_similar(left: str, right: str) -> bool:
+    left_norm = normalize_label(left)
+    right_norm = normalize_label(right)
+    if left_norm == right_norm:
+        return True
+    left_tokens = label_tokens(left)
+    right_tokens = label_tokens(right)
+    if not left_tokens or not right_tokens:
+        return False
+    return len(left_tokens & right_tokens) / len(left_tokens | right_tokens) > 0.82
+
+
+def is_valid_named_entity(entity) -> bool:
+    label = cached_label(entity)
+    if not label or label == "Unnamed":
+        return False
+    normalized = label.lower()
+    return not any(term.lower() in normalized for term in PROPP_EXCLUDED_LABELS)
 
 def compute_depth(entity, memo=None):
-    if memo is None:
-        memo = {}
-    if entity in memo:
-        return memo[entity]
-    if entity == owl.Thing:
-        memo[entity] = 0
-        return 0
-    parents = [p for p in entity.is_a if isinstance(p, ThingClass) and p != owl.Thing]
-    depth = 1 if not parents else max(compute_depth(p, memo) for p in parents) + 1
-    memo[entity] = depth
-    return depth
+    return class_depth(entity, memo=memo)
 
 def get_siblings(entity):
-    sibs = set()
-    for p in entity.is_a:
-        if isinstance(p, ThingClass) and p != owl.Thing:
-            sibs.update(c for c in p.subclasses())
-    sibs.discard(entity)
-    return sibs
+    return class_siblings(entity)
 
-def compute_global_metrics(classes):
-    max_depth = max_sib = max_sub = max_par = 0
-    memo = {}
-    for e in classes:
-        d   = compute_depth(e, memo)
-        s   = len(get_siblings(e))
-        sub = len(list(e.subclasses()))
-        par = len([p for p in e.is_a if isinstance(p, ThingClass) and p != owl.Thing])
-        max_depth = max(max_depth, d)
-        max_sib   = max(max_sib, s)
-        max_sub   = max(max_sub, sub)
-        max_par   = max(max_par, par)
-    return dict(
-        max_depth=max_depth,
-        max_sibling_count=max_sib,
-        max_subclass_count=max_sub,
-        max_parent_count=max_par
+
+def safe_descendants(entity):
+    if entity in descendant_cache:
+        return descendant_cache[entity]
+    try:
+        descendants = set(entity.descendants()) - {entity}
+    except Exception:
+        seen = set()
+        frontier = list(entity.subclasses())
+        while frontier:
+            current = frontier.pop()
+            if current in seen:
+                continue
+            seen.add(current)
+            frontier.extend(list(current.subclasses()))
+        descendants = seen
+    descendant_cache[entity] = descendants
+    return descendants
+
+
+def equivalent_classes(entity):
+    if entity not in equivalent_cache:
+        equivalent_cache[entity] = {e for e in getattr(entity, "equivalent_to", []) if isinstance(e, ThingClass)}
+    return equivalent_cache[entity]
+
+
+def cached_ancestors(entity):
+    if entity not in ancestor_cache:
+        ancestor_cache[entity] = {c for c in entity.ancestors() if isinstance(c, ThingClass)}
+    return ancestor_cache[entity]
+
+
+def true_type_closure(inst) -> set:
+    true_types = set()
+    for cls in getattr(inst, "is_a", []) or []:
+        if not isinstance(cls, ThingClass) or cls == owl.Thing:
+            continue
+        true_types.add(cls)
+        true_types.update(c for c in cached_ancestors(cls) if c != owl.Thing)
+        true_types.update(equivalent_classes(cls))
+    return true_types
+
+
+def structurally_related(left, right) -> bool:
+    if left == right:
+        return True
+    if left in equivalent_classes(right) or right in equivalent_classes(left):
+        return True
+    left_related = cached_ancestors(left) | safe_descendants(left)
+    right_related = cached_ancestors(right) | safe_descendants(right)
+    return right in left_related or left in right_related
+
+
+def shared_ancestor_depth(left, right) -> int:
+    shared = (cached_ancestors(left) & cached_ancestors(right)) - {owl.Thing}
+    if not shared:
+        return -1
+    return max(compute_depth(ancestor) for ancestor in shared)
+
+
+def is_valid_distractor_candidate(candidate, target_class, forbidden) -> bool:
+    return (
+        isinstance(candidate, ThingClass)
+        and candidate not in forbidden
+        and is_valid_named_entity(candidate)
+        and not structurally_related(candidate, target_class)
+        and shared_ancestor_depth(candidate, target_class) >= 0
     )
 
+def compute_global_metrics(classes):
+    return global_class_metrics(classes)
+
 def compute_selection_weight(entity, gm):
-    d   = compute_depth(entity)
-    s   = len(get_siblings(entity))
-    sub = len(list(entity.subclasses()))
-    par = len([p for p in entity.is_a if isinstance(p, ThingClass) and p != owl.Thing])
-    nd   = d   / gm["max_depth"]            if gm["max_depth"]            else 0
-    ns   = s   / gm["max_sibling_count"]    if gm["max_sibling_count"]    else 0
-    nsub = sub / gm["max_subclass_count"]   if gm["max_subclass_count"]   else 0
-    npar = par / gm["max_parent_count"]     if gm["max_parent_count"]     else 0
-    return nd * (ns + 1) / (nsub + npar + 1)
+    return selection_weight(entity, gm)
 
-class OntologyLoader:
-    def __init__(self, file_path: Path, load_imports: bool = True, onto_paths: Optional[List[Path]] = None):
-        self.file_path = Path(file_path)
-        self.world     = World()
-        self.onto      = None
-        self.load_imports = load_imports
-        if onto_paths:
-            for p in onto_paths:
-                try:
-                    pp = str(Path(p).resolve())
-                    if pp not in self.world._ontology_path:
-                        self.world._ontology_path.append(pp)
-                    if pp not in onto_path:
-                        onto_path.append(pp)
-                except Exception:
-                    pass
-
-    def load(self):
-        # Load ontology
-        iri = f"file://{self.file_path.resolve()}"
-        onto = self.world.get_ontology(iri)
-        try:
-            if self.load_imports:
-                onto.load()
-            else:
-                onto.load(only_local=True)
-        except Exception as e:
-            if self.load_imports:
-                logging.warning(f"Failed to load with imports; retrying local-only: {self.file_path} ({e})")
-                try:
-                    onto.load(only_local=True)
-                except Exception as e2:
-                    logging.error(f"Failed local-only: {self.file_path} ({e2})")
-                    return None
-            else:
-                logging.error(f"Failed local-only: {self.file_path} ({e})")
-                return None
-        self.onto = onto
-        return onto
+class OntologyLoader(BaseOntologyLoader):
 
     def preload_entities(self):
         # 预触发类与实例的属性读取
@@ -132,40 +182,122 @@ class OntologyLoader:
 class ClassInstanceQuestionGenerator:
     def __init__(self, instances, classes):
         self.instances = instances
-        self.classes   = classes
+        self.classes   = [c for c in classes if is_valid_named_entity(c)]
         # 全局指标，用于后续可选的加权筛选
-        self.gm        = compute_global_metrics(classes)
+        self.gm        = compute_global_metrics(self.classes)
 
-    def get_candidate_distractors(self, target_class):
-        # 排除 target_class 的所有祖先和后代
-        ancestors   = set(target_class.ancestors()) - {target_class, owl.Thing}
-        descendants = set(target_class.descendants()) - {target_class}
-        excluded    = ancestors | descendants | {target_class, owl.Thing}
-        return [c for c in self.classes if c not in excluded]
+    def get_candidate_distractors(self, target_class, true_classes):
+        forbidden = (
+            set(true_classes)
+            | cached_ancestors(target_class)
+            | safe_descendants(target_class)
+            | equivalent_classes(target_class)
+            | {target_class, owl.Thing}
+        )
+
+        target_depth = compute_depth(target_class)
+        candidates = []
+        seen = set()
+
+        def add_candidate(candidate):
+            if candidate in seen or not is_valid_distractor_candidate(candidate, target_class, forbidden):
+                return
+            seen.add(candidate)
+            candidates.append(candidate)
+
+        for sibling in get_siblings(target_class):
+            add_candidate(sibling)
+
+        local_pool = []
+        ancestors = list(cached_ancestors(target_class) - {target_class, owl.Thing})
+        random.shuffle(ancestors)
+        for ancestor in ancestors[:50]:
+            for branch in ancestor.subclasses():
+                if branch == target_class:
+                    continue
+                local_pool.append(branch)
+                for child in branch.subclasses():
+                    if abs(compute_depth(child) - target_depth) <= 1:
+                        local_pool.append(child)
+
+        local_pool = list(set(local_pool))
+        random.shuffle(local_pool)
+        for candidate in local_pool:
+            add_candidate(candidate)
+            if len(candidates) >= 20:
+                break
+
+        if len(candidates) < 3:
+            pool = list(self.classes)
+            random.shuffle(pool)
+            for idx, candidate in enumerate(pool):
+                if idx >= MAX_DISTRACTOR_SCAN:
+                    break
+                if (
+                    candidate in seen
+                    or candidate in forbidden
+                    or abs(compute_depth(candidate) - target_depth) > 1
+                    or shared_ancestor_depth(candidate, target_class) < 0
+                ):
+                    continue
+                add_candidate(candidate)
+                if len(candidates) >= 20:
+                    break
+        return candidates
+
+    def validate_unique_answer(self, inst, target, options) -> bool:
+        true_classes = true_type_closure(inst)
+        if target not in true_classes:
+            return False
+        true_options = [option for option in options if option in true_classes]
+        if true_options != [target]:
+            return False
+        for option in options:
+            if option == target:
+                continue
+            if structurally_related(option, target):
+                return False
+        labels = [cached_label(option) for option in options]
+        for i, left in enumerate(labels):
+            for right in labels[i + 1:]:
+                if labels_too_similar(left, right):
+                    return False
+        return True
 
     def generate_question_for_instance(self, inst):
-        inst_label = get_label(inst)
+        inst_label = cached_label(inst)
         # 选择一个直接类型作为答案
-        types = [t for t in inst.is_a if isinstance(t, ThingClass) and t != owl.Thing]
+        if not is_valid_named_entity(inst):
+            return None
+        types = [
+            t for t in inst.is_a
+            if isinstance(t, ThingClass) and t != owl.Thing and is_valid_named_entity(t) and compute_depth(t) >= 2
+        ]
         if not types:
             return None
-        target = random.choice(types)
-        target_label = get_label(target)
+        target = sorted(types, key=compute_depth, reverse=True)[0]
+        target_label = cached_label(target)
 
         # 生成干扰项
-        candidates = self.get_candidate_distractors(target)
+        true_classes = true_type_closure(inst)
+        candidates = self.get_candidate_distractors(target, true_classes)
         random.shuffle(candidates)
-        distractors = candidates[:3]
-        # 若不足 3 个，再从全局补足
+        distractors = []
+        seen_labels = {target_label}
+        for candidate in candidates:
+            label = cached_label(candidate)
+            if any(labels_too_similar(label, used) for used in seen_labels):
+                continue
+            distractors.append(candidate)
+            seen_labels.add(label)
+            if len(distractors) >= 3:
+                break
         if len(distractors) < 3:
-            others = [c for c in self.classes if c != target and c not in distractors]
-            random.shuffle(others)
-            for c in others:
-                distractors.append(c)
-                if len(distractors) >= 3:
-                    break
+            return None
 
         options = [target] + distractors[:3]
+        if not self.validate_unique_answer(inst, target, options):
+            return None
         random.shuffle(options)
 
         # 构建选项结构
@@ -173,21 +305,30 @@ class ClassInstanceQuestionGenerator:
         opts    = []
         correct = None
         for i, c in enumerate(options):
+            label = cached_label(c)
+            if label == "Unnamed":
+                return None
             opts.append({
                 "option_letter": letters[i],
-                "label":         get_label(c)
+                "label":         label
             })
             if c == target:
                 correct = letters[i]
 
         # 计算目标类的元数据
-        depth          = compute_depth(target)
-        sibling_count  = len(get_siblings(target))
-        subclass_count = len(list(target.subclasses()))
-        parent_count   = len([p for p in target.is_a if isinstance(p, ThingClass) and p != owl.Thing])
+        stats = class_stats(target)
+        depth = stats.depth
+        sibling_count = stats.sibling_count
+        subclass_count = stats.subclass_count
+        parent_count = stats.parent_count
+
+        prompt = f"Which of the following classes does '{inst_label}' belong to?"
+        inst_context = get_definition(inst)
+        if inst_context and inst_context != "No definition provided.":
+            prompt = f"{prompt} Context: {inst_context}"
 
         return {
-            "prompt": f"Which of the following classes does '{inst_label}' belong to?",
+            "prompt": prompt,
             "options": opts,
             "correct_answer": correct,
             "meta": {
@@ -207,7 +348,7 @@ class ClassInstanceQuestionGenerator:
             }
         }
 
-    def generate_all_questions(self):
+    def generate_all_questions(self, max_questions=None):
         questions = []
         skipped   = 0
         for inst in self.instances:
@@ -215,6 +356,8 @@ class ClassInstanceQuestionGenerator:
                 q = self.generate_question_for_instance(inst)
                 if q:
                     questions.append(q)
+                    if max_questions and len(questions) >= max_questions:
+                        return questions, skipped
                 else:
                     skipped += 1
             except Exception:
@@ -222,26 +365,20 @@ class ClassInstanceQuestionGenerator:
         return questions, skipped
 
 def save_questions(questions, save_path):
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-    with open(save_path, "w", encoding="utf-8") as f:
-        json.dump(questions, f, ensure_ascii=False, indent=4)
-
-def slugify_for_windows(name: str) -> str:
-    safe = []
-    prev_us = False
-    for ch in name:
-        if ch.isalnum() or ch in ("-", "."):
-            safe.append(ch)
-            prev_us = False
-        else:
-            if not prev_us:
-                safe.append("_")
-            prev_us = True
-    s = "".join(safe).strip("_")
-    return s or "unnamed"
+    save_json(questions, Path(save_path), description="questions")
 
 
-def process_owl_file(file_path: Path, input_root: Path, output_root: Path, load_imports: bool, onto_paths: Optional[List[Path]], suppress_warnings: bool, concept_scope: str = 'all') -> None:
+def process_owl_file(file_path: Path, input_root: Path, output_root: Path, load_imports: bool, onto_paths: Optional[List[Path]], suppress_warnings: bool, concept_scope: str = 'all', max_questions: Optional[int] = None) -> None:
+    out_dir, safe_stem = build_mirrored_output_dir(file_path, input_root, output_root)
+    save_path = out_dir / f"class2inst_{safe_stem}.json"
+    empty_path = empty_marker_path(out_dir, "class2inst", safe_stem)
+    if save_path.exists():
+        logging.info("Skip existing: %s", save_path)
+        return
+    if empty_path.exists():
+        logging.info("Skip empty ontology marker: %s", empty_path)
+        return
+
     loader    = OntologyLoader(file_path, load_imports=load_imports, onto_paths=onto_paths)
     onto      = loader.load()
     if not onto:
@@ -264,25 +401,25 @@ def process_owl_file(file_path: Path, input_root: Path, output_root: Path, load_
     classes   = loader.get_all_classes()
 
     gen, sk   = ClassInstanceQuestionGenerator(instances, classes), 0
-    qs, sk    = gen.generate_all_questions()
+    qs, sk    = gen.generate_all_questions(max_questions=max_questions)
     logging.info(f"Generated {len(qs)} questions (skipped {sk}).")
-    try:
-        rel = file_path.relative_to(input_root)
-    except Exception:
-        rel = file_path.name
-    rel_parts = list(Path(rel).parts)
-    safe_parts = [slugify_for_windows(p) for p in rel_parts[:-1]]
-    safe_stem = slugify_for_windows(Path(rel_parts[-1]).stem if rel_parts else file_path.stem)
-    out_dir   = output_root.joinpath(*safe_parts, safe_stem)
-    save_path = out_dir / f"class2inst_{safe_stem}.json"
     if qs:
         save_questions(qs, save_path)
+    else:
+        save_empty_marker(
+            empty_path,
+            source_file=file_path,
+            reason="no_valid_instance_class_questions",
+            extra={"instances": len(instances), "classes": len(classes), "skipped": sk},
+        )
 
 def main():
     parser = argparse.ArgumentParser(description='Generate instance-to-class MCQs from ontologies.')
     parser.add_argument('--input', type=str, required=True, help='Input ontology file or directory (.owl/.rdf/.rdfs/.ttl).')
     parser.add_argument('--output', type=str, required=True, help='Output root directory with Windows-safe mirrored structure.')
     parser.add_argument('--seed', type=int, default=42, help='Random seed.')
+    parser.add_argument('--max-questions', type=int, default=0, help='Max questions per ontology (0 means all).')
+    parser.add_argument('--file-timeout-seconds', type=int, default=0, help='Skip a single ontology file if processing exceeds this many seconds (0 means no timeout).')
     parser.add_argument('--no-imports', action='store_true', help='Do not load imports (local-only).')
     parser.add_argument('--onto-path', action='append', default=None, help='Local directories to resolve owl:imports (can repeat).')
     parser.add_argument('--concept-scope', type=str, choices=['all', 'native', 'imported'], default='all', help='Filter by origin of instances: all/native/imported.')
@@ -291,51 +428,33 @@ def main():
 
     args = parser.parse_args()
 
-    level = getattr(logging, args.log.upper(), logging.INFO)
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s %(levelname)s: %(message)s',
-        handlers=[logging.StreamHandler(), logging.FileHandler('process_1_4.log', 'w', 'utf-8')],
-    )
-    if args.no_warnings:
-        try:
-            set_log_level(0)
-        except Exception:
-            pass
-        warnings.filterwarnings('ignore')
-        for name in ('owlready2', 'rdflib'):
-            try:
-                logging.getLogger(name).setLevel(logging.ERROR)
-            except Exception:
-                pass
+    configure_logging(args.log, "process_1_4.log")
+    suppress_library_noise(args.no_warnings)
     random.seed(args.seed)
+    max_q = None if args.max_questions == 0 else args.max_questions
     input_path = Path(args.input)
     output_root = Path(args.output)
     output_root.mkdir(parents=True, exist_ok=True)
     exts = ('.owl', '.rdf', '.rdfs', '.ttl')
-    files: List[Path] = []
-    if input_path.is_file() and input_path.suffix.lower() in exts:
-        files = [input_path]
-        input_root = input_path.parent
-    else:
-        input_root = input_path
-        for root, _, filenames in os.walk(str(input_path)):
-            for fname in filenames:
-                if fname.lower().endswith(exts):
-                    files.append(Path(root) / fname)
+    files, input_root = discover_ontology_files(input_path, exts)
 
     logging.info(f"Found {len(files)} files.")
+    onto_paths = resolve_onto_paths(args.onto_path)
     for fp in files:
         try:
-            process_owl_file(
-                file_path=fp,
-                input_root=input_root,
-                output_root=output_root,
-                load_imports=not args.no_imports,
-                onto_paths=[Path(p) for p in args.onto_path] if args.onto_path else None,
-                suppress_warnings=args.no_warnings,
-                concept_scope=args.concept_scope,
-            )
+            with file_timeout(args.file_timeout_seconds):
+                process_owl_file(
+                    file_path=fp,
+                    input_root=input_root,
+                    output_root=output_root,
+                    load_imports=not args.no_imports,
+                    onto_paths=onto_paths,
+                    suppress_warnings=args.no_warnings,
+                    concept_scope=args.concept_scope,
+                    max_questions=max_q,
+                )
+        except FileProcessingTimeout as e:
+            logging.error("Timeout processing %s: %s", fp, e)
         except Exception as e:
             logging.error(f"{fp} failed: {e}")
 

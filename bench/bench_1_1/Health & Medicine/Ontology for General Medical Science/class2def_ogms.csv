@@ -1,0 +1,582 @@
+question,options,answer,task_label,label,iri,depth,domain
+"In the ontology of General Medical Science, which of the following definitions best describes 'specifically dependent continuant'?","A. b is a generically dependent continuant = Def. b is a continuant that g-depends_on one or more other entities. (axiom label in BFO2 Reference: [074-001])
+
+B. b is a specifically dependent continuant = Def. b is a continuant & there is some independent continuant c which is not a spatial region and which is such that b s-depends_on c at every time t during the course of b’s existence. (axiom label in BFO2 Reference: [050-003])
+
+C. An abnormal observable quality of a part of a patient that is hypothesized to be clinically relevant.
+
+D. b is an independent continuant = Def. b is a continuant which is such that there is no c and no t such that b s-depends_on c at t. (axiom label in BFO2 Reference: [017-002])",B,1_1,specifically dependent continuant,http://purl.obolibrary.org/obo/BFO_0000020,3,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'continuant fiat boundary'?","A. A disposition in an organism that constitutes an increased risk of the organism's subsequently developing the disease X.
+
+B. A disease course that (a) does not terminate in a return to normal homeostasis and (b) would, absent intervention, fall within abnormal homeostatic range.
+
+C. b is a continuant fiat boundary = Def. b is an immaterial entity that is of zero, one or two dimensions and does not include a spatial region as part. (axiom label in BFO2 Reference: [029-001])
+
+D. A disease stage characterized by the lack of symptoms associated with a given disease",C,1_1,continuant fiat boundary,http://purl.obolibrary.org/obo/BFO_0000140,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'process boundary'?","A. A disease whose physical basis is a constitutional genetic disorder.
+
+B. p is a process boundary =Def. p is a temporal part of a process & p has no proper temporal parts. (axiom label in BFO2 Reference: [084-001])
+
+C. p is a process = Def. p is an occurrent that has temporal proper parts and for some time t, p s-depends_on some material entity at t. (axiom label in BFO2 Reference: [083-003])
+
+D. A therapeutic procedure that uses radiation.",B,1_1,process boundary,http://purl.obolibrary.org/obo/BFO_0000035,3,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'process profile'?","A. a part of an occurrence of a disease process which is associated with position in the normal progression of the disease
+
+B. A process that realizes a plan which is the concretization of a plan specification.
+
+C. b is a process_profile =Def. there is some process c such that b process_profile_of c (axiom label in BFO2 Reference: [093-002])
+
+D. An abnormal processual entity occuring in a patient that is hypothesized to be clinically relevant.",C,1_1,process profile,http://purl.obolibrary.org/obo/BFO_0000144,4,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'relational quality'?","A. A (combination of) quality(ies) of an organism determined by the interaction of its genetic make-up and environment that differentiates specific instances of a species from other instances of the same species.
+
+B. A quality of a patient that is (a) a deviation from clinical normality that exists in virtue of the realization of a disease and (b) is observable.
+
+C. A pattern of signs and symptoms that typically co-occur.
+
+D. b is a relational quality = Def. for some independent continuants c, d and for some time t: b quality_of c at t & b quality_of d at t. (axiom label in BFO2 Reference: [057-001])",D,1_1,relational quality,http://purl.obolibrary.org/obo/BFO_0000145,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'data item'?","A. An information content entity that is intended to be a truthful statement about something (modulo, e.g., measurement precision or other systematic errors) and is constructed/acquired by a method which reliably tends to produce (approximately) truthful statements.
+
+B. A generically dependent continuant that is about some thing.
+
+C. A hypothesis about some future part of a disease course.
+
+D. A data item that is about a patient and is the specified output of a health care process assay or diagnostic process",A,1_1,data item,http://purl.obolibrary.org/obo/IAO_0000027,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'curation status specification'?","A. Data about an ontology part is a data item about a part of an ontology, for example a term
+
+B. A denotator type indicates how a term should be interpreted from an ontological perspective.
+
+C. The reason for which a term has been deprecated. The allowed values come from an enumerated list of predefined terms. See the specification of these instances for more detailed definitions of each enumerated value.
+
+D. The curation status of the term. The allowed values come from an enumerated list of predefined terms. See the specification of these instances for more detailed definitions of each enumerated value.",D,1_1,curation status specification,http://purl.obolibrary.org/obo/IAO_0000078,7,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'data about an ontology part'?","A. A hypothesis about some future part of a disease course.
+
+B. Data about an ontology part is a data item about a part of an ontology, for example a term
+
+C. The curation status of the term. The allowed values come from an enumerated list of predefined terms. See the specification of these instances for more detailed definitions of each enumerated value.
+
+D. The reason for which a term has been deprecated. The allowed values come from an enumerated list of predefined terms. See the specification of these instances for more detailed definitions of each enumerated value.",B,1_1,data about an ontology part,http://purl.obolibrary.org/obo/IAO_0000102,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'base ontology module'?","A. An ontology module that comprises only of asserted axioms local to the ontology, excludes import directives, and excludes axioms or declarations from external ontologies.
+
+B. An ontology module that is intended to be the primary release product and the one consumed by the majority of tools.
+
+C. An ontology module that is extracted from a main ontology module and includes only a subset of entities or axioms.
+
+D. An ontology module that is automatically generated, for example via a SPARQL query or via template and a CSV.",A,1_1,base ontology module,http://purl.obolibrary.org/obo/IAO_8000001,8,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'editors ontology module'?","A. An ontology module that is intended to be directly edited, typically managed in source control, and typically not intended for direct consumption by end-users.
+
+B. An ontology module that contains axioms generated by a reasoner. The generated axioms are typically direct SubClassOf axioms, but other possibilities are available.
+
+C. An ontology module that is extracted from a main ontology module and includes only a subset of entities or axioms.
+
+D. An ontology module that is intended to be the primary release product and the one consumed by the majority of tools.",A,1_1,editors ontology module,http://purl.obolibrary.org/obo/IAO_8000002,8,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'main release ontology module'?","A. An ontology module that is intended to be directly edited, typically managed in source control, and typically not intended for direct consumption by end-users.
+
+B. An ontology module that is intended to be the primary release product and the one consumed by the majority of tools.
+
+C. An ontology module that comprises only of asserted axioms local to the ontology, excludes import directives, and excludes axioms or declarations from external ontologies.
+
+D. An ontology module that is extracted from a main ontology module and includes only a subset of entities or axioms.",B,1_1,main release ontology module,http://purl.obolibrary.org/obo/IAO_8000003,8,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'bridge ontology module'?","A. An ontology module that consists entirely of axioms that connect or bridge two distinct ontology modules. For example, the Uberon-to-ZFA bridge module.
+
+B. An ontology module that contains axioms generated by a reasoner. The generated axioms are typically direct SubClassOf axioms, but other possibilities are available.
+
+C. An ontology module that is intended to be directly edited, typically managed in source control, and typically not intended for direct consumption by end-users.
+
+D. An ontology module that is extracted from a main ontology module and includes only a subset of entities or axioms.",A,1_1,bridge ontology module,http://purl.obolibrary.org/obo/IAO_8000004,8,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'import ontology module'?","A. An imported ontology module that is derived from an external ontology. Derivation methods include the OWLAPI SLME approach.
+
+B. A subset of an ontology that is intended to be excluded for some purpose. For example, a blacklist of classes.
+
+C. A subset ontology that is intended as a whitelist for curators using the ontology. Such a subset will exclude classes that curators should not use for curation.
+
+D. A subset ontology module that is intended to be imported from another ontology.",D,1_1,import ontology module,http://purl.obolibrary.org/obo/IAO_8000005,9,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'subset ontology module'?","A. An ontology module that comprises only of asserted axioms local to the ontology, excludes import directives, and excludes axioms or declarations from external ontologies.
+
+B. An ontology module that consists entirely of axioms that connect or bridge two distinct ontology modules. For example, the Uberon-to-ZFA bridge module.
+
+C. An ontology module that is extracted from a main ontology module and includes only a subset of entities or axioms.
+
+D. An ontology module that contains axioms generated by a reasoner. The generated axioms are typically direct SubClassOf axioms, but other possibilities are available.",C,1_1,subset ontology module,http://purl.obolibrary.org/obo/IAO_8000006,8,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'curation subset ontology module'?","A. A subset of an ontology that is intended to be excluded for some purpose. For example, a blacklist of classes.
+
+B. A subset ontology that is intended as a whitelist for curators using the ontology. Such a subset will exclude classes that curators should not use for curation.
+
+C. An ontology module that is intended for usage in analysis or discovery applications.
+
+D. A subset ontology module that is intended to be imported from another ontology.",B,1_1,curation subset ontology module,http://purl.obolibrary.org/obo/IAO_8000007,9,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'analysis subset ontology module'?","A. A subset ontology that is largely comprised of a single layer or strata in an ontology class hierarchy. The purpose is typically for rolling up for visualization. The classes in the layer need not be disjoint.
+
+B. A subset ontology that is crafted to either include or exclude a taxonomic grouping of species.
+
+C. An ontology module that is intended for usage in analysis or discovery applications.
+
+D. A subset ontology that is intended as a whitelist for curators using the ontology. Such a subset will exclude classes that curators should not use for curation.",C,1_1,analysis subset ontology module,http://purl.obolibrary.org/obo/IAO_8000008,9,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'single layer subset ontology module'?","A. A subset ontology that is largely comprised of a single layer or strata in an ontology class hierarchy. The purpose is typically for rolling up for visualization. The classes in the layer need not be disjoint.
+
+B. An ontology module that is intended for usage in analysis or discovery applications.
+
+C. A subset of an ontology that is intended to be excluded for some purpose. For example, a blacklist of classes.
+
+D. A subset ontology module that is intended to be imported from another ontology.",A,1_1,single layer subset ontology module,http://purl.obolibrary.org/obo/IAO_8000009,9,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'exclusion subset ontology module'?","A. A subset of an ontology that is intended to be excluded for some purpose. For example, a blacklist of classes.
+
+B. A subset ontology module that is intended to be imported from another ontology.
+
+C. A subset ontology that is intended as a whitelist for curators using the ontology. Such a subset will exclude classes that curators should not use for curation.
+
+D. An ontology module that is intended for usage in analysis or discovery applications.",A,1_1,exclusion subset ontology module,http://purl.obolibrary.org/obo/IAO_8000010,9,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'species subset ontology module'?","A. A subset ontology that is largely comprised of a single layer or strata in an ontology class hierarchy. The purpose is typically for rolling up for visualization. The classes in the layer need not be disjoint.
+
+B. A subset ontology that is intended as a whitelist for curators using the ontology. Such a subset will exclude classes that curators should not use for curation.
+
+C. A subset ontology that is crafted to either include or exclude a taxonomic grouping of species.
+
+D. A subset of an ontology that is intended to be excluded for some purpose. For example, a blacklist of classes.",C,1_1,species subset ontology module,http://purl.obolibrary.org/obo/IAO_8000012,9,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'reasoned ontology module'?","A. An ontology module that contains axioms generated by a reasoner. The generated axioms are typically direct SubClassOf axioms, but other possibilities are available.
+
+B. An ontology module that is extracted from a main ontology module and includes only a subset of entities or axioms.
+
+C. An ontology module that comprises only of asserted axioms local to the ontology, excludes import directives, and excludes axioms or declarations from external ontologies.
+
+D. An ontology module that is intended to be directly edited, typically managed in source control, and typically not intended for direct consumption by end-users.",A,1_1,reasoned ontology module,http://purl.obolibrary.org/obo/IAO_8000013,8,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'generated ontology module'?","A. An ontology module that is intended to be the primary release product and the one consumed by the majority of tools.
+
+B. An ontology module that is automatically generated, for example via a SPARQL query or via template and a CSV.
+
+C. An ontology module that contains axioms generated by a reasoner. The generated axioms are typically direct SubClassOf axioms, but other possibilities are available.
+
+D. An ontology module that is extracted from a main ontology module and includes only a subset of entities or axioms.",B,1_1,generated ontology module,http://purl.obolibrary.org/obo/IAO_8000014,8,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'template generated ontology module'?","A. An ontology module that is automatically generated from a template specification and fillers for slots in that template.
+
+B. p is a process = Def. p is an occurrent that has temporal proper parts and for some time t, p s-depends_on some material entity at t. (axiom label in BFO2 Reference: [083-003])
+
+C. A treatment whose completion is hypothesized by a health care provider to eliminate a disorder or to alleviate the signs and symptoms of a disorder or pathological process.
+
+D. An ontology module that is automatically generated, for example via a SPARQL query or via template and a CSV.",A,1_1,template generated ontology module,http://purl.obolibrary.org/obo/IAO_8000015,9,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'obo basic subset ontology module'?","A. The reason for which a term has been deprecated. The allowed values come from an enumerated list of predefined terms. See the specification of these instances for more detailed definitions of each enumerated value.
+
+B. A subset ontology that is designed for basic applications to continue to make certain simplifying assumptions; many of these simplifying assumptions were based on the initial version of the Gene Ontology, and have become enshrined in many popular and useful tools such as term enrichment tools.		Examples of such assumptions include: traversing the ontology graph ignoring relationship types using a naive algorithm will not lead to cycles (i.e. the ontology is a DAG); every referenced term is declared in the ontology (i.e. there are no dangling clauses).		An ontology is OBO Basic if and only if it has the following characteristics:	DAG	Unidirectional	No Dangling Clauses	Fully Asserted	Fully Labeled	No equivalence axioms	Singly labeled edges	No qualifier lists	No disjointness axioms	No owl-axioms header	No imports
+
+C. A representation that is either the output of a clinical history taking or a physical examination or an image finding, or some combination thereof.
+
+D. TODO",B,1_1,obo basic subset ontology module,http://purl.obolibrary.org/obo/IAO_8000018,10,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'infectious disorder'?","A. A disorder of some macroscopic part of a tissue
+
+B. A disorder whose etiology involves (1) a modification to the patient's genomic DNA which leads to alterations in the normal expression pattern of the genome, but is (2) not a change in the nucleotide sequence.
+
+C. A disorder whose etiology involves an abnormality in the nucleotide sequence of an organism's genome.
+
+D. An infection that is clinically abnormal.",D,1_1,infectious disorder,http://purl.obolibrary.org/obo/IDO_0000504,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'infection'?","A. A part of an extended organism that itself has as part a population of one or more infectious agents and that (1) exists as a result of processes initiated by members of the infectious agent population and is (2) clinically abnormal in virtue of the presence of this infectious agent population, or (3) has a disposition to bring clinical abnormality to immunocompetent organisms of the same Species as the host (the organism corresponding to the extended organism) through transmission of a member or offspring of a member of the infectious agent population.
+
+B. An object aggregate consisting of an organism and all material entities located within the organism, overlapping the organism, or occupying sites formed in part by the organism.
+
+C. TODO: Define, relate to disorder, and place in the OGMS hierarchy.
+
+D. An infection resulting from a transmission process that unfolds in a hospital.",A,1_1,infection,http://purl.obolibrary.org/obo/IDO_0000586,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'hospital-acquired infection'?","A. A disease course with an acute onset
+
+B. A subset ontology that is intended as a whitelist for curators using the ontology. Such a subset will exclude classes that curators should not use for curation.
+
+C. An infection resulting from a transmission process that unfolds in a hospital.
+
+D. A part of an extended organism that itself has as part a population of one or more infectious agents and that (1) exists as a result of processes initiated by members of the infectious agent population and is (2) clinically abnormal in virtue of the presence of this infectious agent population, or (3) has a disposition to bring clinical abnormality to immunocompetent organisms of the same Species as the host (the organism corresponding to the extended organism) through transmission of a member or offspring of a member of the infectious agent population.",C,1_1,hospital-acquired infection,http://purl.obolibrary.org/obo/IDO_0000630,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'disease stage'?","A. A disease stage which is preceded by a remission and characterized by the return of a manifestation of a disease.
+
+B. a part of an occurrence of a disease process which is associated with position in the normal progression of the disease
+
+C. The totality of all processes through which a given disease instance is realized.
+
+D. A disease stage which is characterized by the lack of a manifestation of a disease",B,1_1,disease stage,http://purl.obolibrary.org/obo/OBI_0000278,4,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'clinical data item'?","A. A series of statements representing health-relevant qualities of a patient and of a patient's family.
+
+B. A representation of clinically significant bodily components, dispositions, and/or bodily processes of a human being that is inferred from relevant clinical findings.
+
+C. A hypothesis about some future part of a disease course.
+
+D. A data item that is about a patient and is the specified output of a health care process assay or diagnostic process",D,1_1,clinical data item,http://purl.obolibrary.org/obo/OGMS_0000123,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'image finding'?","A. A representation that is either the output of a clinical history taking or a physical examination or an image finding, or some combination thereof.
+
+B. A representation of a quality of a specimen that is the output of a laboratory test and that can support an inference to an assertion about some quality of the patient.
+
+C. TODO: Define.
+
+D. A representation of an image that supports an inference to an assertion about some quality of a patient.",D,1_1,image finding,http://purl.obolibrary.org/obo/OGMS_0000017,8,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'symptom'?","A. p is a process = Def. p is an occurrent that has temporal proper parts and for some time t, p s-depends_on some material entity at t. (axiom label in BFO2 Reference: [083-003])
+
+B. A process experienced by the patient, which can only be experienced by the patient, that is hypothesized to be clinically relevant.
+
+C. b is a process_profile =Def. there is some process c such that b process_profile_of c (axiom label in BFO2 Reference: [093-002])
+
+D. A process which has as parts all the processes in which a given organism is participant.",B,1_1,symptom,http://purl.obolibrary.org/obo/OGMS_0000020,4,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'manifestation of a disease'?","A. A (combination of) quality(ies) of an organism determined by the interaction of its genetic make-up and environment that differentiates specific instances of a species from other instances of the same species.
+
+B. A quality of a patient that is (a) a deviation from clinical normality that exists in virtue of the realization of a disease and (b) is observable.
+
+C. b is a relational quality = Def. for some independent continuants c, d and for some time t: b quality_of c at t & b quality_of d at t. (axiom label in BFO2 Reference: [057-001])
+
+D. A quality in which complete clearance of the disorder is attained; however, physiological 'memory' may persist",B,1_1,manifestation of a disease,http://purl.obolibrary.org/obo/OGMS_0000022,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'preclinical manifestation of a disease'?","A. A manifestation of a disease that exists prior to the time at which it would be detected in a clinical history taking or physical examination, if the patient were to present to a clinician. A realization of a disease that exists prior to its becoming detectable in a clinical history taking or physical examination.
+
+B. A quality of a patient that is (a) a deviation from clinical normality that exists in virtue of the realization of a disease and (b) is observable.
+
+C. A manifestation of a disease that is detectable in a clinical history taking or physical examination.
+
+D. A quality in which complete clearance of the disorder is attained; however, physiological 'memory' may persist",A,1_1,preclinical manifestation of a disease,http://purl.obolibrary.org/obo/OGMS_0000026,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'clinical phenotype'?","A. A representation of an image that supports an inference to an assertion about some quality of a patient.
+
+B. A (combination of) quality(ies) of an organism determined by the interaction of its genetic make-up and environment that differentiates specific instances of a species from other instances of the same species.
+
+C. A clinically abnormal phenotype that is characteristic of a single disease.
+
+D. A clinically abnormal phenotype.",D,1_1,clinical phenotype,http://purl.obolibrary.org/obo/OGMS_0000027,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'disease phenotype'?","A. A (combination of) quality(ies) of an organism determined by the interaction of its genetic make-up and environment that differentiates specific instances of a species from other instances of the same species.
+
+B. A clinically abnormal phenotype.
+
+C. A subset ontology that is designed for basic applications to continue to make certain simplifying assumptions; many of these simplifying assumptions were based on the initial version of the Gene Ontology, and have become enshrined in many popular and useful tools such as term enrichment tools.		Examples of such assumptions include: traversing the ontology graph ignoring relationship types using a naive algorithm will not lead to cycles (i.e. the ontology is a DAG); every referenced term is declared in the ontology (i.e. there are no dangling clauses).		An ontology is OBO Basic if and only if it has the following characteristics:	DAG	Unidirectional	No Dangling Clauses	Fully Asserted	Fully Labeled	No equivalence axioms	Singly labeled edges	No qualifier lists	No disjointness axioms	No owl-axioms header	No imports
+
+D. A clinically abnormal phenotype that is characteristic of a single disease.",D,1_1,disease phenotype,http://purl.obolibrary.org/obo/OGMS_0000028,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'physical sign'?","A. An abnormal material entity that is part of a patient and hypothesized to be clinically relevant.
+
+B. TODO: Define, relate to disorder, and place in the OGMS hierarchy.
+
+C. A material entity which is clinically abnormal and part of an extended organism. Disorders are the physical basis of disease.
+
+D. TODO: Define, relate to disorder, and place in the OGMS hierarchy.",A,1_1,physical sign,http://purl.obolibrary.org/obo/OGMS_0000129,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'disease'?","A. A disposition in an organism that constitutes an increased risk of the organism's subsequently developing the disease X.
+
+B. A disease whose physical basis is an acquired genetic disorder.
+
+C. A disposition (i) to undergo pathological processes that (ii) exists in an organism because of one or more disorders in that organism.
+
+D. A disease whose physical basis is a constitutional genetic disorder.",C,1_1,disease,http://purl.obolibrary.org/obo/OGMS_0000031,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'constitutional genetic disease'?","A. A disposition (i) to undergo pathological processes that (ii) exists in an organism because of one or more disorders in that organism.
+
+B. A disease whose physical basis is an acquired genetic disorder.
+
+C. A clinically abnormal phenotype.
+
+D. A disease whose physical basis is a constitutional genetic disorder.",D,1_1,constitutional genetic disease,http://purl.obolibrary.org/obo/OGMS_0000035,7,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'abnormal homeostasis'?","A. A planned process whose completion is hypothesized by a health care provider to eliminate, prevent, or alleviate a disorder, the signs and symptoms of a disorder, or a pathological process
+
+B. An ontology module that is intended for usage in analysis or discovery applications.
+
+C. Homeostasis that is clinically abnormal for an organism of a given type and age in a given environment.
+
+D. Homeostasis of a type that is not clinically abnormal.",C,1_1,abnormal homeostasis,http://purl.obolibrary.org/obo/OGMS_0000037,7,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'configuration'?","A. A configuration which deviates in some way from a canonical configuration for a particular organism.
+
+B. A quality in which complete clearance of the disorder is attained; however, physiological 'memory' may persist
+
+C. A quality which is an spatial arrangement or distribution of a(n) independent continuant(s) across a Three Dimensional Region.
+
+D. b is a relational quality = Def. for some independent continuants c, d and for some time t: b quality_of c at t & b quality_of d at t. (axiom label in BFO2 Reference: [057-001])",C,1_1,configuration,http://purl.obolibrary.org/obo/OGMS_0000039,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'genetic disorder'?","A. A disorder whose etiology involves (1) a modification to the patient's genomic DNA which leads to alterations in the normal expression pattern of the genome, but is (2) not a change in the nucleotide sequence.
+
+B. A disorder whose etiology involves an abnormality in the nucleotide sequence of an organism's genome.
+
+C. An infection that is clinically abnormal.
+
+D. A material entity which is clinically abnormal and part of an extended organism. Disorders are the physical basis of disease.",B,1_1,genetic disorder,http://purl.obolibrary.org/obo/OGMS_0000047,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'health care process assay'?","A. A planned process with the objective to improve the health status of a patient that directly involves the treatment, diagnosis, or prevention of disease or injury of a patient
+
+B. A temporally-connected health care process that has as participants an organization or person realizing the health care provider role and a person realizing the patient role. The health care provider role and patient are realized during the health care encounter
+
+C. A health care process with the objective to produce information about the material entity that is the evaluant, by physically examining it or its proxies.
+
+D. A health care process that involves the interpretation of a clinical picture from a given patient (input) and the assertion to the effect that the patient has a disease, disorder, or syndrome of a certain type, or none of these (output).",C,1_1,health care process assay,http://purl.obolibrary.org/obo/OGMS_0000108,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'clinical laboratory test'?","A. A measurement assay that has as input a patient-derived specimen and as output a data item that is about a quality of the specimen.
+
+B. A sequence of acts of observing and measuring qualities of a patient performed by a clinician; measurements may occur with and without elicitation.
+
+C. A health care process in which a clinician elicits a description of previous sign and symptoms of disease from a patient or from a third party who is reporting on behalf of the patient.
+
+D. A health care process with the objective to produce information about the material entity that is the evaluant, by physically examining it or its proxies.",A,1_1,clinical laboratory test,http://purl.obolibrary.org/obo/OGMS_0000056,7,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'etiological process'?","A. A process in an organism that leads to a subsequent disorder.
+
+B. b is a process_profile =Def. there is some process c such that b process_profile_of c (axiom label in BFO2 Reference: [093-002])
+
+C. An abnormal processual entity occuring in a patient that is hypothesized to be clinically relevant.
+
+D. A process experienced by the patient, which can only be experienced by the patient, that is hypothesized to be clinically relevant.",A,1_1,etiological process,http://purl.obolibrary.org/obo/OGMS_0000059,4,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'disease course'?","A. A disease course that terminates in a return to normal homeostasis.
+
+B. A disease course that (a) does not terminate in a return to normal homeostasis and (b) would, absent intervention, involve an increasing deviation from homeostasis.
+
+C. An abnormal processual entity occuring in a patient that is hypothesized to be clinically relevant.
+
+D. The totality of all processes through which a given disease instance is realized.",D,1_1,disease course,http://purl.obolibrary.org/obo/OGMS_0000063,4,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'diagnosis'?","A. The representation of a conclusion of a diagnostic process.
+
+B. A series of statements representing health-relevant qualities of a patient and of a patient's family.
+
+C. A data item that is about a patient and is the specified output of a health care process assay or diagnostic process
+
+D. A representation of clinically significant bodily components, dispositions, and/or bodily processes of a human being that is inferred from relevant clinical findings.",A,1_1,diagnosis,http://purl.obolibrary.org/obo/OGMS_0000073,7,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'pathological anatomical structure'?","A. TODO: Define, relate to disorder, and place in the OGMS hierarchy.
+
+B. A part of an extended organism that itself has as part a population of one or more infectious agents and that (1) exists as a result of processes initiated by members of the infectious agent population and is (2) clinically abnormal in virtue of the presence of this infectious agent population, or (3) has a disposition to bring clinical abnormality to immunocompetent organisms of the same Species as the host (the organism corresponding to the extended organism) through transmission of a member or offspring of a member of the infectious agent population.
+
+C. An anatomical structure (FMA) is pathological whenever (1) it has come into being as a result of changes in some pre-existing canonical anatomical structure, (2) through processes other than the expression of the normal complement of genes of an organism of the given type, and (3) is predisposed to have health-related consequences for the organism in question manifested by symptoms and signs.
+
+D. A structurally anomalous part of an organism acquired during fetal development and present at birth (but not necessarily hereditary) which is hypothesized to be harmful for the organism.",C,1_1,pathological anatomical structure,http://purl.obolibrary.org/obo/OGMS_0000078,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'portion of pathological body substance'?","A. TODO: Define, relate to disorder, and place in the OGMS hierarchy.
+
+B. A structurally anomalous part of an organism acquired during fetal development and present at birth (but not necessarily hereditary) which is hypothesized to be harmful for the organism.
+
+C. TODO: Define, relate to disorder, and place in the OGMS hierarchy.
+
+D. An aggregate of organisms of the same type.",C,1_1,portion of pathological body substance,http://purl.obolibrary.org/obo/OGMS_0000079,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'pathological transformation'?","A. TODO: Define.
+
+B. A pathological bodily process in which a canonical anatomical structure becomes a pathological anatomical structure.
+
+C. The process in which an allergic disease unfolds.
+
+D. A pathological bodily process that occurs in the fetus during fetal development",B,1_1,pathological transformation,http://purl.obolibrary.org/obo/OGMS_0000080,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'pathological derivation'?","A. A bodily process that is clinically abnormal.
+
+B. A pathological bodily process in which a canonical anatomical structure becomes a pathological anatomical structure.
+
+C. A pathological bodily process in which matter is reorganized in such a way as to give rise to new pathological formations which take the place of entities existing earlier.
+
+D. TODO: Define.",C,1_1,pathological derivation,http://purl.obolibrary.org/obo/OGMS_0000081,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'physical examination finding'?","A. A representation that is either the output of a clinical history taking or a physical examination or an image finding, or some combination thereof.
+
+B. A representation of an image that supports an inference to an assertion about some quality of a patient.
+
+C. A representation of a quality of a specimen that is the output of a laboratory test and that can support an inference to an assertion about some quality of the patient.
+
+D. TODO: Define.",D,1_1,physical examination finding,http://purl.obolibrary.org/obo/OGMS_0000083,8,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'organism population'?","A. An aggregate of organisms of the same type.
+
+B. TODO: Define, relate to disorder, and place in the OGMS hierarchy.
+
+C. An object aggregate consisting of an organism and all material entities located within the organism, overlapping the organism, or occupying sites formed in part by the organism.
+
+D. An abnormal material entity that is part of a patient and hypothesized to be clinically relevant.",A,1_1,organism population,http://purl.obolibrary.org/obo/OGMS_0000084,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'syndrome'?","A. A pattern of signs and symptoms that typically co-occur.
+
+B. A quality of a patient that is (a) a deviation from clinical normality that exists in virtue of the realization of a disease and (b) is observable.
+
+C. An abnormal observable quality of a part of a patient that is hypothesized to be clinically relevant.
+
+D. b is a relational quality = Def. for some independent continuants c, d and for some time t: b quality_of c at t & b quality_of d at t. (axiom label in BFO2 Reference: [057-001])",A,1_1,syndrome,http://purl.obolibrary.org/obo/OGMS_0000086,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'extended organism'?","A. An object aggregate consisting of an organism and all material entities located within the organism, overlapping the organism, or occupying sites formed in part by the organism.
+
+B. An abnormal material entity that is part of a patient and hypothesized to be clinically relevant.
+
+C. A material entity which is clinically abnormal and part of an extended organism. Disorders are the physical basis of disease.
+
+D. TODO: Define, relate to disorder, and place in the OGMS hierarchy.",A,1_1,extended organism,http://purl.obolibrary.org/obo/OGMS_0000087,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'congenital disorder'?","A. A structurally anomalous part of an organism acquired during fetal development and present at birth (but not necessarily hereditary) which is hypothesized to be harmful for the organism.
+
+B. An aggregate of organisms of the same type.
+
+C. A congenital disorder arising as a result of an infectious process
+
+D. A congenital disorder arising as a result of a drug exposure causing an anatomical abnormality",A,1_1,congenital disorder,http://purl.obolibrary.org/obo/OGMS_0000089,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'treatment'?","A. A planned process whose completion is hypothesized by a health care provider to eliminate, prevent, or alleviate a disorder, the signs and symptoms of a disorder, or a pathological process
+
+B. A treatment whose completion is hypothesized by a health care provider to prevent the signs and symptoms of a disorder or pathological process.
+
+C. TODO
+
+D. A health care process that involves the interpretation of a clinical picture from a given patient (input) and the assertion to the effect that the patient has a disease, disorder, or syndrome of a certain type, or none of these (output).",A,1_1,treatment,http://purl.obolibrary.org/obo/OGMS_0000090,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'health care encounter'?","A. TODO
+
+B. A temporally-connected health care process that has as participants an organization or person realizing the health care provider role and a person realizing the patient role. The health care provider role and patient are realized during the health care encounter
+
+C. A planned process whose completion is hypothesized by a health care provider to eliminate, prevent, or alleviate a disorder, the signs and symptoms of a disorder, or a pathological process
+
+D. A health care process which results in physical changes in a specified input material",B,1_1,health care encounter,http://purl.obolibrary.org/obo/OGMS_0000097,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'hospitalization'?","A. A temporally-connected health care process that has as participants an organization or person realizing the health care provider role and a person realizing the patient role. The health care provider role and patient are realized during the health care encounter
+
+B. A health care process with the objective to produce information about the material entity that is the evaluant, by physically examining it or its proxies.
+
+C. TODO
+
+D. A planned process with the objective to improve the health status of a patient that directly involves the treatment, diagnosis, or prevention of disease or injury of a patient",C,1_1,hospitalization,http://purl.obolibrary.org/obo/OGMS_0000098,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'inpatient encounter'?","A. TODO
+
+B. A health care encounter in which care is provided for undifferentiated and unscheduled patients with illnesses or injuries requiring immediate medical attention.
+
+C. A temporally-connected health care process that has as participants an organization or person realizing the health care provider role and a person realizing the patient role. The health care provider role and patient are realized during the health care encounter
+
+D. A health care encounter involving a patient who has been admitted to a health care facility and remains in a hospital facility for at least one night.",D,1_1,inpatient encounter,http://purl.obolibrary.org/obo/OGMS_0000100,7,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'remission'?","A. A disease stage which is characterized by the lack of a manifestation of a disease
+
+B. A remission which is characterized by a prolonged lack of some manifestations of a disease
+
+C. A disease stage that marks the beginning of a disease
+
+D. A disease stage characterized by the lack of symptoms associated with a given disease",A,1_1,remission,http://purl.obolibrary.org/obo/OGMS_0000106,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'ancillary health care process'?","A. A process that realizes a plan which is the concretization of a plan specification.
+
+B. A planned process that has the objective to support the objective of a health care process without directly involving the treatment, diagnosis, or prevention of disease or injury of a patient.
+
+C. A planned process whose completion is hypothesized by a health care provider to reduce the risk of developing a disorder or the signs and symptoms of a disorder.
+
+D. A planned process with the objective to improve the health status of a patient that directly involves the treatment, diagnosis, or prevention of disease or injury of a patient",B,1_1,ancillary health care process,http://purl.obolibrary.org/obo/OGMS_0000107,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'health care process data transformation'?","A. TODO
+
+B. A health care process that produces output from input data
+
+C. A planned process with the objective to improve the health status of a patient that directly involves the treatment, diagnosis, or prevention of disease or injury of a patient
+
+D. A health care process with the objective to produce information about the material entity that is the evaluant, by physically examining it or its proxies.",B,1_1,health care process data transformation,http://purl.obolibrary.org/obo/OGMS_0000110,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'prophylactic treatment'?","A. A tissue disorder that has resulted from a dysregulation of cell proliferation leading to a net increase in mass
+
+B. A treatment whose completion is hypothesized by a health care provider to eliminate a disorder or to alleviate the signs and symptoms of a disorder or pathological process.
+
+C. A treatment whose completion is hypothesized by a health care provider to prevent the signs and symptoms of a disorder or pathological process.
+
+D. A planned process whose completion is hypothesized by a health care provider to eliminate, prevent, or alleviate a disorder, the signs and symptoms of a disorder, or a pathological process",C,1_1,prophylactic treatment,http://purl.obolibrary.org/obo/OGMS_0000111,7,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'chemotherapy procedure'?","A. A therapeutic procedure that uses synthetic or naturally-occurring chemicals
+
+B. A therapeutic procedure in which a body part is transferred into a organism
+
+C. A therapeutic procedure that uses radiation.
+
+D. A treatment whose completion is hypothesized by a health care provider to eliminate a disorder or to alleviate the signs and symptoms of a disorder or pathological process.",A,1_1,chemotherapy procedure,http://purl.obolibrary.org/obo/OGMS_0000113,8,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'physical therapy procedure'?","A. A therapeutic procedure that uses synthetic or naturally-occurring chemicals
+
+B. A therapeutic procedure that uses immune system derived entities.
+
+C. A therapeutic procedure that uses physical conditioning
+
+D. A therapeutic procedure that uses radiation.",C,1_1,physical therapy procedure,http://purl.obolibrary.org/obo/OGMS_0000115,8,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'onset'?","A. A disease stage which is preceded by a remission and characterized by the return of a manifestation of a disease.
+
+B. A disease stage that marks the beginning of a disease
+
+C. A disease stage which is characterized by the lack of a manifestation of a disease
+
+D. A disease stage with a rapid unfolding of signs and symptoms",B,1_1,onset,http://purl.obolibrary.org/obo/OGMS_0000118,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'acute onset'?","A. A disease stage that marks the beginning of a disease
+
+B. b is a generically dependent continuant = Def. b is a continuant that g-depends_on one or more other entities. (axiom label in BFO2 Reference: [074-001])
+
+C. A disease whose physical basis is an acquired genetic disorder.
+
+D. A disease stage with a rapid unfolding of signs and symptoms",D,1_1,acute onset,http://purl.obolibrary.org/obo/OGMS_0000119,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'partial remission'?","A. The representation of a conclusion of a diagnostic process.
+
+B. A remission which is characterized by a prolonged lack of some manifestations of a disease
+
+C. A disease stage which is characterized by the lack of a manifestation of a disease
+
+D. A remission which is characterized by a prolonged lack of all manifestations of a disease",B,1_1,partial remission,http://purl.obolibrary.org/obo/OGMS_0000121,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'follow-up health care encounter'?","A. A health care encounter that is scheduled for the purpose of assessing a known set of specific issues
+
+B. A health care encounter that is regularly scheduled for the purpose of health monitoring.
+
+C. TODO
+
+D. A planned process with the objective to improve the health status of a patient that directly involves the treatment, diagnosis, or prevention of disease or injury of a patient",A,1_1,follow-up health care encounter,http://purl.obolibrary.org/obo/OGMS_0000125,8,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'congenital infection'?","A. A therapeutic procedure that uses immune system derived entities.
+
+B. A congenital disorder arising as a result of a drug exposure causing an anatomical abnormality
+
+C. A congenital disorder arising as a result of an infectious process
+
+D. A structurally anomalous part of an organism acquired during fetal development and present at birth (but not necessarily hereditary) which is hypothesized to be harmful for the organism.",C,1_1,congenital infection,http://purl.obolibrary.org/obo/OGMS_0000126,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'allergic disease process'?","A. A pathological bodily process in which matter is reorganized in such a way as to give rise to new pathological formations which take the place of entities existing earlier.
+
+B. The process in which an allergic disease unfolds.
+
+C. A bodily process that is clinically abnormal.
+
+D. TODO: Define.",B,1_1,allergic disease process,http://purl.obolibrary.org/obo/OGMS_0000130,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'cancer process'?","A. TODO: Define.
+
+B. The process in which an allergic disease unfolds.
+
+C. The process in which cancer unfolds
+
+D. The process in which an autoimmune disease unfolds.",C,1_1,cancer process,http://purl.obolibrary.org/obo/OGMS_0000131,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'autoimmune disease process'?","A. A pathological bodily process in which a canonical anatomical structure becomes a pathological anatomical structure.
+
+B. TODO: Define.
+
+C. A pathological bodily process in which matter is reorganized in such a way as to give rise to new pathological formations which take the place of entities existing earlier.
+
+D. The process in which an autoimmune disease unfolds.",D,1_1,autoimmune disease process,http://purl.obolibrary.org/obo/OGMS_0000132,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'cancer progression stage I'?","A. A cancer progression stage characterized by abnormal cellular growth that extends well beyond normal local tissue boundaries as a contiguous mass.
+
+B. A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass and includes metastasis to other distant tissues besides lymph nodes.
+
+C. A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass.
+
+D. A cancer progression stage characterized by abnormal cellular growth contained within normal tissue boundaries (e.g. carcinoma in situ).",C,1_1,cancer progression stage I,http://purl.obolibrary.org/obo/OGMS_0000136,7,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'cancer progression stage II'?","A. A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass and includes metastasis to one or more regional draining lymph nodes.
+
+B. A cancer progression stage characterized by abnormal cellular growth contained within normal tissue boundaries (e.g. carcinoma in situ).
+
+C. A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass and includes metastasis to other distant tissues besides lymph nodes.
+
+D. A cancer progression stage characterized by abnormal cellular growth that extends well beyond normal local tissue boundaries as a contiguous mass.",D,1_1,cancer progression stage II,http://purl.obolibrary.org/obo/OGMS_0000137,7,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'cancer progression stage III'?","A. A cancer progression stage characterized by abnormal cellular growth that extends well beyond normal local tissue boundaries as a contiguous mass.
+
+B. A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass and includes metastasis to one or more regional draining lymph nodes.
+
+C. A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass and includes metastasis to other distant tissues besides lymph nodes.
+
+D. A cancer progression stage characterized by abnormal cellular growth contained within normal tissue boundaries (e.g. carcinoma in situ).",B,1_1,cancer progression stage III,http://purl.obolibrary.org/obo/OGMS_0000138,7,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'cancer progression stage IV'?","A. A cancer progression stage characterized by abnormal cellular growth contained within normal tissue boundaries (e.g. carcinoma in situ).
+
+B. A cancer progression stage characterized by abnormal cellular growth that extends well beyond normal local tissue boundaries as a contiguous mass.
+
+C. A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass and includes metastasis to other distant tissues besides lymph nodes.
+
+D. A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass.",C,1_1,cancer progression stage IV,http://purl.obolibrary.org/obo/OGMS_0000139,7,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'infectious disease process'?","A. The process in which an autoimmune disease unfolds.
+
+B. A pathological bodily process that occurs in the fetus during fetal development
+
+C. The process in which an infectious disease unfolds
+
+D. A bodily process that is clinically abnormal.",C,1_1,infectious disease process,http://purl.obolibrary.org/obo/OGMS_0000140,6,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'processual sign'?","A. A process that realizes a plan which is the concretization of a plan specification.
+
+B. An abnormal processual entity occuring in a patient that is hypothesized to be clinically relevant.
+
+C. A process which has as parts all the processes in which a given organism is participant.
+
+D. A processual entity during which a patient participating in a disease course gradually returns to participating in a canonical life course.",B,1_1,processual sign,http://purl.obolibrary.org/obo/OGMS_0000141,4,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'qualitative sign'?","A. An abnormal observable quality of a part of a patient that is hypothesized to be clinically relevant.
+
+B. b is a relational quality = Def. for some independent continuants c, d and for some time t: b quality_of c at t & b quality_of d at t. (axiom label in BFO2 Reference: [057-001])
+
+C. A quality which is an spatial arrangement or distribution of a(n) independent continuant(s) across a Three Dimensional Region.
+
+D. A (combination of) quality(ies) of an organism determined by the interaction of its genetic make-up and environment that differentiates specific instances of a species from other instances of the same species.",A,1_1,qualitative sign,http://purl.obolibrary.org/obo/OGMS_0000142,5,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'transplantation'?","A. A transplantation in which the body part is a non-fluid tissue
+
+B. A transplantation in which the body part is a bodily fluid
+
+C. A therapeutic procedure in which a body part is transferred into a organism
+
+D. A therapeutic procedure that uses radiation.",C,1_1,transplantation,http://purl.obolibrary.org/obo/OGMS_0000143,8,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'solid organ transplant'?","A. A transplantation in which the body part is a bodily fluid
+
+B. A therapeutic procedure in which a body part is transferred into a organism
+
+C. A transplantation in which the body part is a non-fluid tissue
+
+D. An ontology module that is extracted from a main ontology module and includes only a subset of entities or axioms.",C,1_1,solid organ transplant,http://purl.obolibrary.org/obo/OGMS_0000144,9,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'transfusion'?","A. A therapeutic procedure in which a body part is transferred into a organism
+
+B. A role borne by some material entity which can be delivered/administrated into some organism and the role is realized during a clinical treatment process aiming to treat symptoms, signs or diagnosed disease.
+
+C. A transplantation in which the body part is a non-fluid tissue
+
+D. A transplantation in which the body part is a bodily fluid",D,1_1,transfusion,http://purl.obolibrary.org/obo/OGMS_0000145,9,"Health & Medicine, General Medical Science Ontology"
+"In the ontology of General Medical Science, which of the following definitions best describes 'tissue disorder'?","A. A disorder whose etiology involves (1) a modification to the patient's genomic DNA which leads to alterations in the normal expression pattern of the genome, but is (2) not a change in the nucleotide sequence.
+
+B. A disorder that involves some structural damage that is immediately caused by a catastrophic external force.
+
+C. A disorder of some macroscopic part of a tissue
+
+D. A disorder whose etiology involves an abnormality in the nucleotide sequence of an organism's genome.",C,1_1,tissue disorder,http://purl.obolibrary.org/obo/OGMS_0000146,6,"Health & Medicine, General Medical Science Ontology"

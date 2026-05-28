@@ -4,18 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 QUESTIONS_PER_ONTOLOGY="${QUESTIONS_PER_ONTOLOGY:-200}"
 
-# 3_1 / L1: ontology term extraction from ontology-derived text
-cd "$SCRIPT_DIR/3_1_term_extraction_from_text"
-python task_generate.py \
-  --input "../../../data" \
-  --output "../../../bench/bench_3_1" \
-  --concept-scope native \
-  --max-questions "$QUESTIONS_PER_ONTOLOGY" \
-  --no-imports \
-  --no-warnings \
-  --log info
-
-# 3_2 / L2: class definition generation (open-ended)
+# 3_2 / L2: class definition generation
 cd "$SCRIPT_DIR/3_2_definition_generation"
 python task_generate.py \
   --input "../../../data" \
@@ -26,7 +15,7 @@ python task_generate.py \
   --no-warnings \
   --log info
 
-# 3_3 / L3: class hierarchy construction (subClassOf only)
+# 3_3 / L3: class hierarchy construction
 cd "$SCRIPT_DIR/3_3_hierarchy_construction"
 python task_generate.py \
   --input "../../../data" \
@@ -34,7 +23,7 @@ python task_generate.py \
   --concept-scope native \
   --log info
 
-# 3_4 / L4: property-only construction (no subclassOf)
+# 3_4 / L4: property relation construction
 cd "$SCRIPT_DIR/3_4_property_relation_construction"
 python task_generate.py \
   --input "../../../data" \
@@ -44,7 +33,7 @@ python task_generate.py \
   --no-warnings \
   --log info
 
-# 3_5 / L5: property constraints (domain, range, supported characteristics)
+# 3_5 / L5: constraint construction
 cd "$SCRIPT_DIR/3_5_constraint_construction"
 python task_generate.py \
   --input "../../../data" \

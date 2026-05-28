@@ -1,0 +1,2492 @@
+[
+    {
+        "prompt": "Which of the following definitions best describes 'specifically dependent continuant'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "b is a generically dependent continuant = Def. b is a continuant that g-depends_on one or more other entities. (axiom label in BFO2 Reference: [074-001])"
+            },
+            {
+                "option_letter": "B",
+                "definition": "b is a specifically dependent continuant = Def. b is a continuant & there is some independent continuant c which is not a spatial region and which is such that b s-depends_on c at every time t during the course of b’s existence. (axiom label in BFO2 Reference: [050-003])"
+            },
+            {
+                "option_letter": "C",
+                "definition": "An abnormal observable quality of a part of a patient that is hypothesized to be clinically relevant."
+            },
+            {
+                "option_letter": "D",
+                "definition": "b is an independent continuant = Def. b is a continuant which is such that there is no c and no t such that b s-depends_on c at t. (axiom label in BFO2 Reference: [017-002])"
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/BFO_0000020",
+            "label": "specifically dependent continuant",
+            "depth": 3,
+            "sibling_count": 2,
+            "subclass_count": 2,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'continuant fiat boundary'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A disposition in an organism that constitutes an increased risk of the organism's subsequently developing the disease X."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A disease course that (a) does not terminate in a return to normal homeostasis and (b) would, absent intervention, fall within abnormal homeostatic range."
+            },
+            {
+                "option_letter": "C",
+                "definition": "b is a continuant fiat boundary = Def. b is an immaterial entity that is of zero, one or two dimensions and does not include a spatial region as part. (axiom label in BFO2 Reference: [029-001])"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A disease stage characterized by the lack of symptoms associated with a given disease"
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/BFO_0000140",
+            "label": "continuant fiat boundary",
+            "depth": 5,
+            "sibling_count": 2,
+            "subclass_count": 3,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'process boundary'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A disease whose physical basis is a constitutional genetic disorder."
+            },
+            {
+                "option_letter": "B",
+                "definition": "p is a process boundary =Def. p is a temporal part of a process & p has no proper temporal parts. (axiom label in BFO2 Reference: [084-001])"
+            },
+            {
+                "option_letter": "C",
+                "definition": "p is a process = Def. p is an occurrent that has temporal proper parts and for some time t, p s-depends_on some material entity at t. (axiom label in BFO2 Reference: [083-003])"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A therapeutic procedure that uses radiation."
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/BFO_0000035",
+            "label": "process boundary",
+            "depth": 3,
+            "sibling_count": 3,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'process profile'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "a part of an occurrence of a disease process which is associated with position in the normal progression of the disease"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A process that realizes a plan which is the concretization of a plan specification."
+            },
+            {
+                "option_letter": "C",
+                "definition": "b is a process_profile =Def. there is some process c such that b process_profile_of c (axiom label in BFO2 Reference: [093-002])"
+            },
+            {
+                "option_letter": "D",
+                "definition": "An abnormal processual entity occuring in a patient that is hypothesized to be clinically relevant."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/BFO_0000144",
+            "label": "process profile",
+            "depth": 4,
+            "sibling_count": 10,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'relational quality'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A (combination of) quality(ies) of an organism determined by the interaction of its genetic make-up and environment that differentiates specific instances of a species from other instances of the same species."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A quality of a patient that is (a) a deviation from clinical normality that exists in virtue of the realization of a disease and (b) is observable."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A pattern of signs and symptoms that typically co-occur."
+            },
+            {
+                "option_letter": "D",
+                "definition": "b is a relational quality = Def. for some independent continuants c, d and for some time t: b quality_of c at t & b quality_of d at t. (axiom label in BFO2 Reference: [057-001])"
+            }
+        ],
+        "correct_answer": "D",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/BFO_0000145",
+            "label": "relational quality",
+            "depth": 5,
+            "sibling_count": 6,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'data item'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "An information content entity that is intended to be a truthful statement about something (modulo, e.g., measurement precision or other systematic errors) and is constructed/acquired by a method which reliably tends to produce (approximately) truthful statements."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A generically dependent continuant that is about some thing."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A hypothesis about some future part of a disease course."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A data item that is about a patient and is the specified output of a health care process assay or diagnostic process"
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_0000027",
+            "label": "data item",
+            "depth": 5,
+            "sibling_count": 2,
+            "subclass_count": 4,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'curation status specification'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "Data about an ontology part is a data item about a part of an ontology, for example a term"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A denotator type indicates how a term should be interpreted from an ontological perspective."
+            },
+            {
+                "option_letter": "C",
+                "definition": "The reason for which a term has been deprecated. The allowed values come from an enumerated list of predefined terms. See the specification of these instances for more detailed definitions of each enumerated value."
+            },
+            {
+                "option_letter": "D",
+                "definition": "The curation status of the term. The allowed values come from an enumerated list of predefined terms. See the specification of these instances for more detailed definitions of each enumerated value."
+            }
+        ],
+        "correct_answer": "D",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_0000078",
+            "label": "curation status specification",
+            "depth": 7,
+            "sibling_count": 3,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'data about an ontology part'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A hypothesis about some future part of a disease course."
+            },
+            {
+                "option_letter": "B",
+                "definition": "Data about an ontology part is a data item about a part of an ontology, for example a term"
+            },
+            {
+                "option_letter": "C",
+                "definition": "The curation status of the term. The allowed values come from an enumerated list of predefined terms. See the specification of these instances for more detailed definitions of each enumerated value."
+            },
+            {
+                "option_letter": "D",
+                "definition": "The reason for which a term has been deprecated. The allowed values come from an enumerated list of predefined terms. See the specification of these instances for more detailed definitions of each enumerated value."
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_0000102",
+            "label": "data about an ontology part",
+            "depth": 6,
+            "sibling_count": 3,
+            "subclass_count": 4,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'base ontology module'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "An ontology module that comprises only of asserted axioms local to the ontology, excludes import directives, and excludes axioms or declarations from external ontologies."
+            },
+            {
+                "option_letter": "B",
+                "definition": "An ontology module that is intended to be the primary release product and the one consumed by the majority of tools."
+            },
+            {
+                "option_letter": "C",
+                "definition": "An ontology module that is extracted from a main ontology module and includes only a subset of entities or axioms."
+            },
+            {
+                "option_letter": "D",
+                "definition": "An ontology module that is automatically generated, for example via a SPARQL query or via template and a CSV."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_8000001",
+            "label": "base ontology module",
+            "depth": 8,
+            "sibling_count": 6,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'editors ontology module'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "An ontology module that is intended to be directly edited, typically managed in source control, and typically not intended for direct consumption by end-users."
+            },
+            {
+                "option_letter": "B",
+                "definition": "An ontology module that contains axioms generated by a reasoner. The generated axioms are typically direct SubClassOf axioms, but other possibilities are available."
+            },
+            {
+                "option_letter": "C",
+                "definition": "An ontology module that is extracted from a main ontology module and includes only a subset of entities or axioms."
+            },
+            {
+                "option_letter": "D",
+                "definition": "An ontology module that is intended to be the primary release product and the one consumed by the majority of tools."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_8000002",
+            "label": "editors ontology module",
+            "depth": 8,
+            "sibling_count": 6,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'main release ontology module'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "An ontology module that is intended to be directly edited, typically managed in source control, and typically not intended for direct consumption by end-users."
+            },
+            {
+                "option_letter": "B",
+                "definition": "An ontology module that is intended to be the primary release product and the one consumed by the majority of tools."
+            },
+            {
+                "option_letter": "C",
+                "definition": "An ontology module that comprises only of asserted axioms local to the ontology, excludes import directives, and excludes axioms or declarations from external ontologies."
+            },
+            {
+                "option_letter": "D",
+                "definition": "An ontology module that is extracted from a main ontology module and includes only a subset of entities or axioms."
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_8000003",
+            "label": "main release ontology module",
+            "depth": 8,
+            "sibling_count": 6,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'bridge ontology module'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "An ontology module that consists entirely of axioms that connect or bridge two distinct ontology modules. For example, the Uberon-to-ZFA bridge module."
+            },
+            {
+                "option_letter": "B",
+                "definition": "An ontology module that contains axioms generated by a reasoner. The generated axioms are typically direct SubClassOf axioms, but other possibilities are available."
+            },
+            {
+                "option_letter": "C",
+                "definition": "An ontology module that is intended to be directly edited, typically managed in source control, and typically not intended for direct consumption by end-users."
+            },
+            {
+                "option_letter": "D",
+                "definition": "An ontology module that is extracted from a main ontology module and includes only a subset of entities or axioms."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_8000004",
+            "label": "bridge ontology module",
+            "depth": 8,
+            "sibling_count": 6,
+            "subclass_count": 1,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'import ontology module'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "An imported ontology module that is derived from an external ontology. Derivation methods include the OWLAPI SLME approach."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A subset of an ontology that is intended to be excluded for some purpose. For example, a blacklist of classes."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A subset ontology that is intended as a whitelist for curators using the ontology. Such a subset will exclude classes that curators should not use for curation."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A subset ontology module that is intended to be imported from another ontology."
+            }
+        ],
+        "correct_answer": "D",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_8000005",
+            "label": "import ontology module",
+            "depth": 9,
+            "sibling_count": 6,
+            "subclass_count": 1,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'subset ontology module'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "An ontology module that comprises only of asserted axioms local to the ontology, excludes import directives, and excludes axioms or declarations from external ontologies."
+            },
+            {
+                "option_letter": "B",
+                "definition": "An ontology module that consists entirely of axioms that connect or bridge two distinct ontology modules. For example, the Uberon-to-ZFA bridge module."
+            },
+            {
+                "option_letter": "C",
+                "definition": "An ontology module that is extracted from a main ontology module and includes only a subset of entities or axioms."
+            },
+            {
+                "option_letter": "D",
+                "definition": "An ontology module that contains axioms generated by a reasoner. The generated axioms are typically direct SubClassOf axioms, but other possibilities are available."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_8000006",
+            "label": "subset ontology module",
+            "depth": 8,
+            "sibling_count": 6,
+            "subclass_count": 7,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'curation subset ontology module'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A subset of an ontology that is intended to be excluded for some purpose. For example, a blacklist of classes."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A subset ontology that is intended as a whitelist for curators using the ontology. Such a subset will exclude classes that curators should not use for curation."
+            },
+            {
+                "option_letter": "C",
+                "definition": "An ontology module that is intended for usage in analysis or discovery applications."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A subset ontology module that is intended to be imported from another ontology."
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_8000007",
+            "label": "curation subset ontology module",
+            "depth": 9,
+            "sibling_count": 6,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'analysis subset ontology module'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A subset ontology that is largely comprised of a single layer or strata in an ontology class hierarchy. The purpose is typically for rolling up for visualization. The classes in the layer need not be disjoint."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A subset ontology that is crafted to either include or exclude a taxonomic grouping of species."
+            },
+            {
+                "option_letter": "C",
+                "definition": "An ontology module that is intended for usage in analysis or discovery applications."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A subset ontology that is intended as a whitelist for curators using the ontology. Such a subset will exclude classes that curators should not use for curation."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_8000008",
+            "label": "analysis subset ontology module",
+            "depth": 9,
+            "sibling_count": 6,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'single layer subset ontology module'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A subset ontology that is largely comprised of a single layer or strata in an ontology class hierarchy. The purpose is typically for rolling up for visualization. The classes in the layer need not be disjoint."
+            },
+            {
+                "option_letter": "B",
+                "definition": "An ontology module that is intended for usage in analysis or discovery applications."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A subset of an ontology that is intended to be excluded for some purpose. For example, a blacklist of classes."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A subset ontology module that is intended to be imported from another ontology."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_8000009",
+            "label": "single layer subset ontology module",
+            "depth": 9,
+            "sibling_count": 6,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'exclusion subset ontology module'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A subset of an ontology that is intended to be excluded for some purpose. For example, a blacklist of classes."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A subset ontology module that is intended to be imported from another ontology."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A subset ontology that is intended as a whitelist for curators using the ontology. Such a subset will exclude classes that curators should not use for curation."
+            },
+            {
+                "option_letter": "D",
+                "definition": "An ontology module that is intended for usage in analysis or discovery applications."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_8000010",
+            "label": "exclusion subset ontology module",
+            "depth": 9,
+            "sibling_count": 6,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'species subset ontology module'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A subset ontology that is largely comprised of a single layer or strata in an ontology class hierarchy. The purpose is typically for rolling up for visualization. The classes in the layer need not be disjoint."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A subset ontology that is intended as a whitelist for curators using the ontology. Such a subset will exclude classes that curators should not use for curation."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A subset ontology that is crafted to either include or exclude a taxonomic grouping of species."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A subset of an ontology that is intended to be excluded for some purpose. For example, a blacklist of classes."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_8000012",
+            "label": "species subset ontology module",
+            "depth": 9,
+            "sibling_count": 6,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'reasoned ontology module'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "An ontology module that contains axioms generated by a reasoner. The generated axioms are typically direct SubClassOf axioms, but other possibilities are available."
+            },
+            {
+                "option_letter": "B",
+                "definition": "An ontology module that is extracted from a main ontology module and includes only a subset of entities or axioms."
+            },
+            {
+                "option_letter": "C",
+                "definition": "An ontology module that comprises only of asserted axioms local to the ontology, excludes import directives, and excludes axioms or declarations from external ontologies."
+            },
+            {
+                "option_letter": "D",
+                "definition": "An ontology module that is intended to be directly edited, typically managed in source control, and typically not intended for direct consumption by end-users."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_8000013",
+            "label": "reasoned ontology module",
+            "depth": 8,
+            "sibling_count": 6,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'generated ontology module'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "An ontology module that is intended to be the primary release product and the one consumed by the majority of tools."
+            },
+            {
+                "option_letter": "B",
+                "definition": "An ontology module that is automatically generated, for example via a SPARQL query or via template and a CSV."
+            },
+            {
+                "option_letter": "C",
+                "definition": "An ontology module that contains axioms generated by a reasoner. The generated axioms are typically direct SubClassOf axioms, but other possibilities are available."
+            },
+            {
+                "option_letter": "D",
+                "definition": "An ontology module that is extracted from a main ontology module and includes only a subset of entities or axioms."
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_8000014",
+            "label": "generated ontology module",
+            "depth": 8,
+            "sibling_count": 6,
+            "subclass_count": 1,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'template generated ontology module'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "An ontology module that is automatically generated from a template specification and fillers for slots in that template."
+            },
+            {
+                "option_letter": "B",
+                "definition": "p is a process = Def. p is an occurrent that has temporal proper parts and for some time t, p s-depends_on some material entity at t. (axiom label in BFO2 Reference: [083-003])"
+            },
+            {
+                "option_letter": "C",
+                "definition": "A treatment whose completion is hypothesized by a health care provider to eliminate a disorder or to alleviate the signs and symptoms of a disorder or pathological process."
+            },
+            {
+                "option_letter": "D",
+                "definition": "An ontology module that is automatically generated, for example via a SPARQL query or via template and a CSV."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_8000015",
+            "label": "template generated ontology module",
+            "depth": 9,
+            "sibling_count": 0,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'obo basic subset ontology module'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "The reason for which a term has been deprecated. The allowed values come from an enumerated list of predefined terms. See the specification of these instances for more detailed definitions of each enumerated value."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A subset ontology that is designed for basic applications to continue to make certain simplifying assumptions; many of these simplifying assumptions were based on the initial version of the Gene Ontology, and have become enshrined in many popular and useful tools such as term enrichment tools.\n\nExamples of such assumptions include: traversing the ontology graph ignoring relationship types using a naive algorithm will not lead to cycles (i.e. the ontology is a DAG); every referenced term is declared in the ontology (i.e. there are no dangling clauses).\n\nAn ontology is OBO Basic if and only if it has the following characteristics:\nDAG\nUnidirectional\nNo Dangling Clauses\nFully Asserted\nFully Labeled\nNo equivalence axioms\nSingly labeled edges\nNo qualifier lists\nNo disjointness axioms\nNo owl-axioms header\nNo imports"
+            },
+            {
+                "option_letter": "C",
+                "definition": "A representation that is either the output of a clinical history taking or a physical examination or an image finding, or some combination thereof."
+            },
+            {
+                "option_letter": "D",
+                "definition": "TODO"
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IAO_8000018",
+            "label": "obo basic subset ontology module",
+            "depth": 10,
+            "sibling_count": 1,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'infectious disorder'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A disorder of some macroscopic part of a tissue"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A disorder whose etiology involves (1) a modification to the patient's genomic DNA which leads to alterations in the normal expression pattern of the genome, but is (2) not a change in the nucleotide sequence."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A disorder whose etiology involves an abnormality in the nucleotide sequence of an organism's genome."
+            },
+            {
+                "option_letter": "D",
+                "definition": "An infection that is clinically abnormal."
+            }
+        ],
+        "correct_answer": "D",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IDO_0000504",
+            "label": "infectious disorder",
+            "depth": 6,
+            "sibling_count": 4,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'infection'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A part of an extended organism that itself has as part a population of one or more infectious agents and that (1) exists as a result of processes initiated by members of the infectious agent population and is (2) clinically abnormal in virtue of the presence of this infectious agent population, or (3) has a disposition to bring clinical abnormality to immunocompetent organisms of the same Species as the host (the organism corresponding to the extended organism) through transmission of a member or offspring of a member of the infectious agent population."
+            },
+            {
+                "option_letter": "B",
+                "definition": "An object aggregate consisting of an organism and all material entities located within the organism, overlapping the organism, or occupying sites formed in part by the organism."
+            },
+            {
+                "option_letter": "C",
+                "definition": "TODO: Define, relate to disorder, and place in the OGMS hierarchy."
+            },
+            {
+                "option_letter": "D",
+                "definition": "An infection resulting from a transmission process that unfolds in a hospital."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IDO_0000586",
+            "label": "infection",
+            "depth": 5,
+            "sibling_count": 11,
+            "subclass_count": 1,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'hospital-acquired infection'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A disease course with an acute onset"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A subset ontology that is intended as a whitelist for curators using the ontology. Such a subset will exclude classes that curators should not use for curation."
+            },
+            {
+                "option_letter": "C",
+                "definition": "An infection resulting from a transmission process that unfolds in a hospital."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A part of an extended organism that itself has as part a population of one or more infectious agents and that (1) exists as a result of processes initiated by members of the infectious agent population and is (2) clinically abnormal in virtue of the presence of this infectious agent population, or (3) has a disposition to bring clinical abnormality to immunocompetent organisms of the same Species as the host (the organism corresponding to the extended organism) through transmission of a member or offspring of a member of the infectious agent population."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/IDO_0000630",
+            "label": "hospital-acquired infection",
+            "depth": 6,
+            "sibling_count": 0,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'disease stage'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A disease stage which is preceded by a remission and characterized by the return of a manifestation of a disease."
+            },
+            {
+                "option_letter": "B",
+                "definition": "a part of an occurrence of a disease process which is associated with position in the normal progression of the disease"
+            },
+            {
+                "option_letter": "C",
+                "definition": "The totality of all processes through which a given disease instance is realized."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A disease stage which is characterized by the lack of a manifestation of a disease"
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OBI_0000278",
+            "label": "disease stage",
+            "depth": 4,
+            "sibling_count": 10,
+            "subclass_count": 5,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'clinical data item'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A series of statements representing health-relevant qualities of a patient and of a patient's family."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A representation of clinically significant bodily components, dispositions, and/or bodily processes of a human being that is inferred from relevant clinical findings."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A hypothesis about some future part of a disease course."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A data item that is about a patient and is the specified output of a health care process assay or diagnostic process"
+            }
+        ],
+        "correct_answer": "D",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000123",
+            "label": "clinical data item",
+            "depth": 6,
+            "sibling_count": 3,
+            "subclass_count": 4,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'image finding'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A representation that is either the output of a clinical history taking or a physical examination or an image finding, or some combination thereof."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A representation of a quality of a specimen that is the output of a laboratory test and that can support an inference to an assertion about some quality of the patient."
+            },
+            {
+                "option_letter": "C",
+                "definition": "TODO: Define."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A representation of an image that supports an inference to an assertion about some quality of a patient."
+            }
+        ],
+        "correct_answer": "D",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000017",
+            "label": "image finding",
+            "depth": 8,
+            "sibling_count": 2,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'symptom'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "p is a process = Def. p is an occurrent that has temporal proper parts and for some time t, p s-depends_on some material entity at t. (axiom label in BFO2 Reference: [083-003])"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A process experienced by the patient, which can only be experienced by the patient, that is hypothesized to be clinically relevant."
+            },
+            {
+                "option_letter": "C",
+                "definition": "b is a process_profile =Def. there is some process c such that b process_profile_of c (axiom label in BFO2 Reference: [093-002])"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A process which has as parts all the processes in which a given organism is participant."
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000020",
+            "label": "symptom",
+            "depth": 4,
+            "sibling_count": 10,
+            "subclass_count": 1,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'manifestation of a disease'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A (combination of) quality(ies) of an organism determined by the interaction of its genetic make-up and environment that differentiates specific instances of a species from other instances of the same species."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A quality of a patient that is (a) a deviation from clinical normality that exists in virtue of the realization of a disease and (b) is observable."
+            },
+            {
+                "option_letter": "C",
+                "definition": "b is a relational quality = Def. for some independent continuants c, d and for some time t: b quality_of c at t & b quality_of d at t. (axiom label in BFO2 Reference: [057-001])"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A quality in which complete clearance of the disorder is attained; however, physiological 'memory' may persist"
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000022",
+            "label": "manifestation of a disease",
+            "depth": 5,
+            "sibling_count": 6,
+            "subclass_count": 2,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'preclinical manifestation of a disease'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A manifestation of a disease that exists prior to the time at which it would be detected in a clinical history taking or physical examination, if the patient were to present to a clinician. A realization of a disease that exists prior to its becoming detectable in a clinical history taking or physical examination."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A quality of a patient that is (a) a deviation from clinical normality that exists in virtue of the realization of a disease and (b) is observable."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A manifestation of a disease that is detectable in a clinical history taking or physical examination."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A quality in which complete clearance of the disorder is attained; however, physiological 'memory' may persist"
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000026",
+            "label": "preclinical manifestation of a disease",
+            "depth": 6,
+            "sibling_count": 1,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'clinical phenotype'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A representation of an image that supports an inference to an assertion about some quality of a patient."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A (combination of) quality(ies) of an organism determined by the interaction of its genetic make-up and environment that differentiates specific instances of a species from other instances of the same species."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A clinically abnormal phenotype that is characteristic of a single disease."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A clinically abnormal phenotype."
+            }
+        ],
+        "correct_answer": "D",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000027",
+            "label": "clinical phenotype",
+            "depth": 6,
+            "sibling_count": 1,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'disease phenotype'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A (combination of) quality(ies) of an organism determined by the interaction of its genetic make-up and environment that differentiates specific instances of a species from other instances of the same species."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A clinically abnormal phenotype."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A subset ontology that is designed for basic applications to continue to make certain simplifying assumptions; many of these simplifying assumptions were based on the initial version of the Gene Ontology, and have become enshrined in many popular and useful tools such as term enrichment tools.\n\nExamples of such assumptions include: traversing the ontology graph ignoring relationship types using a naive algorithm will not lead to cycles (i.e. the ontology is a DAG); every referenced term is declared in the ontology (i.e. there are no dangling clauses).\n\nAn ontology is OBO Basic if and only if it has the following characteristics:\nDAG\nUnidirectional\nNo Dangling Clauses\nFully Asserted\nFully Labeled\nNo equivalence axioms\nSingly labeled edges\nNo qualifier lists\nNo disjointness axioms\nNo owl-axioms header\nNo imports"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A clinically abnormal phenotype that is characteristic of a single disease."
+            }
+        ],
+        "correct_answer": "D",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000028",
+            "label": "disease phenotype",
+            "depth": 6,
+            "sibling_count": 1,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'physical sign'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "An abnormal material entity that is part of a patient and hypothesized to be clinically relevant."
+            },
+            {
+                "option_letter": "B",
+                "definition": "TODO: Define, relate to disorder, and place in the OGMS hierarchy."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A material entity which is clinically abnormal and part of an extended organism. Disorders are the physical basis of disease."
+            },
+            {
+                "option_letter": "D",
+                "definition": "TODO: Define, relate to disorder, and place in the OGMS hierarchy."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000129",
+            "label": "physical sign",
+            "depth": 5,
+            "sibling_count": 11,
+            "subclass_count": 1,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'disease'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A disposition in an organism that constitutes an increased risk of the organism's subsequently developing the disease X."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A disease whose physical basis is an acquired genetic disorder."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A disposition (i) to undergo pathological processes that (ii) exists in an organism because of one or more disorders in that organism."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A disease whose physical basis is a constitutional genetic disorder."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000031",
+            "label": "disease",
+            "depth": 6,
+            "sibling_count": 3,
+            "subclass_count": 2,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'constitutional genetic disease'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A disposition (i) to undergo pathological processes that (ii) exists in an organism because of one or more disorders in that organism."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A disease whose physical basis is an acquired genetic disorder."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A clinically abnormal phenotype."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A disease whose physical basis is a constitutional genetic disorder."
+            }
+        ],
+        "correct_answer": "D",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000035",
+            "label": "constitutional genetic disease",
+            "depth": 7,
+            "sibling_count": 1,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'abnormal homeostasis'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A planned process whose completion is hypothesized by a health care provider to eliminate, prevent, or alleviate a disorder, the signs and symptoms of a disorder, or a pathological process"
+            },
+            {
+                "option_letter": "B",
+                "definition": "An ontology module that is intended for usage in analysis or discovery applications."
+            },
+            {
+                "option_letter": "C",
+                "definition": "Homeostasis that is clinically abnormal for an organism of a given type and age in a given environment."
+            },
+            {
+                "option_letter": "D",
+                "definition": "Homeostasis of a type that is not clinically abnormal."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000037",
+            "label": "abnormal homeostasis",
+            "depth": 7,
+            "sibling_count": 1,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'configuration'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A configuration which deviates in some way from a canonical configuration for a particular organism."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A quality in which complete clearance of the disorder is attained; however, physiological 'memory' may persist"
+            },
+            {
+                "option_letter": "C",
+                "definition": "A quality which is an spatial arrangement or distribution of a(n) independent continuant(s) across a Three Dimensional Region."
+            },
+            {
+                "option_letter": "D",
+                "definition": "b is a relational quality = Def. for some independent continuants c, d and for some time t: b quality_of c at t & b quality_of d at t. (axiom label in BFO2 Reference: [057-001])"
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000039",
+            "label": "configuration",
+            "depth": 5,
+            "sibling_count": 6,
+            "subclass_count": 1,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'genetic disorder'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A disorder whose etiology involves (1) a modification to the patient's genomic DNA which leads to alterations in the normal expression pattern of the genome, but is (2) not a change in the nucleotide sequence."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A disorder whose etiology involves an abnormality in the nucleotide sequence of an organism's genome."
+            },
+            {
+                "option_letter": "C",
+                "definition": "An infection that is clinically abnormal."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A material entity which is clinically abnormal and part of an extended organism. Disorders are the physical basis of disease."
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000047",
+            "label": "genetic disorder",
+            "depth": 6,
+            "sibling_count": 4,
+            "subclass_count": 2,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'health care process assay'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A planned process with the objective to improve the health status of a patient that directly involves the treatment, diagnosis, or prevention of disease or injury of a patient"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A temporally-connected health care process that has as participants an organization or person realizing the health care provider role and a person realizing the patient role.  The health care provider role and patient are realized during the health care encounter"
+            },
+            {
+                "option_letter": "C",
+                "definition": "A health care process with the objective to produce information about the material entity that is the evaluant, by physically examining it or its proxies."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A health care process that involves the interpretation of a clinical picture from a given patient (input) and the assertion to the effect that the patient has a disease, disorder, or syndrome of a certain type, or none of these (output)."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000108",
+            "label": "health care process assay",
+            "depth": 6,
+            "sibling_count": 6,
+            "subclass_count": 3,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'clinical laboratory test'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A measurement assay that has as input a patient-derived specimen and as output a data item that is about a quality of the specimen."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A sequence of acts of observing and measuring qualities of a patient performed by a clinician; measurements may occur with and without elicitation."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A health care process in which a clinician elicits a description of previous sign and symptoms of disease from a patient or from a third party who is reporting on behalf of the patient."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A health care process with the objective to produce information about the material entity that is the evaluant, by physically examining it or its proxies."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000056",
+            "label": "clinical laboratory test",
+            "depth": 7,
+            "sibling_count": 2,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'etiological process'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A process in an organism that leads to a subsequent disorder."
+            },
+            {
+                "option_letter": "B",
+                "definition": "b is a process_profile =Def. there is some process c such that b process_profile_of c (axiom label in BFO2 Reference: [093-002])"
+            },
+            {
+                "option_letter": "C",
+                "definition": "An abnormal processual entity occuring in a patient that is hypothesized to be clinically relevant."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A process experienced by the patient, which can only be experienced by the patient, that is hypothesized to be clinically relevant."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000059",
+            "label": "etiological process",
+            "depth": 4,
+            "sibling_count": 10,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'disease course'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A disease course that terminates in a return to normal homeostasis."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A disease course that (a) does not terminate in a return to normal homeostasis and (b) would, absent intervention, involve an increasing deviation from homeostasis."
+            },
+            {
+                "option_letter": "C",
+                "definition": "An abnormal processual entity occuring in a patient that is hypothesized to be clinically relevant."
+            },
+            {
+                "option_letter": "D",
+                "definition": "The totality of all processes through which a given disease instance is realized."
+            }
+        ],
+        "correct_answer": "D",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000063",
+            "label": "disease course",
+            "depth": 4,
+            "sibling_count": 10,
+            "subclass_count": 4,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'diagnosis'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "The representation of a conclusion of a diagnostic process."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A series of statements representing health-relevant qualities of a patient and of a patient's family."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A data item that is about a patient and is the specified output of a health care process assay or diagnostic process"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A representation of clinically significant bodily components, dispositions, and/or bodily processes of a human being that is inferred from relevant clinical findings."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000073",
+            "label": "diagnosis",
+            "depth": 7,
+            "sibling_count": 3,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'pathological anatomical structure'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "TODO: Define, relate to disorder, and place in the OGMS hierarchy."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A part of an extended organism that itself has as part a population of one or more infectious agents and that (1) exists as a result of processes initiated by members of the infectious agent population and is (2) clinically abnormal in virtue of the presence of this infectious agent population, or (3) has a disposition to bring clinical abnormality to immunocompetent organisms of the same Species as the host (the organism corresponding to the extended organism) through transmission of a member or offspring of a member of the infectious agent population."
+            },
+            {
+                "option_letter": "C",
+                "definition": "An anatomical structure (FMA) is pathological whenever (1) it has come into being as a result of changes in some pre-existing canonical anatomical structure, (2) through processes other than the expression of the normal complement of genes of an organism of the given type, and (3) is predisposed to have health-related consequences for the organism in question manifested by symptoms and signs."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A structurally anomalous part of an organism acquired during fetal development and present at birth (but not necessarily hereditary) which is hypothesized to be harmful for the organism."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000078",
+            "label": "pathological anatomical structure",
+            "depth": 5,
+            "sibling_count": 11,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'portion of pathological body substance'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "TODO: Define, relate to disorder, and place in the OGMS hierarchy."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A structurally anomalous part of an organism acquired during fetal development and present at birth (but not necessarily hereditary) which is hypothesized to be harmful for the organism."
+            },
+            {
+                "option_letter": "C",
+                "definition": "TODO: Define, relate to disorder, and place in the OGMS hierarchy."
+            },
+            {
+                "option_letter": "D",
+                "definition": "An aggregate of organisms of the same type."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000079",
+            "label": "portion of pathological body substance",
+            "depth": 5,
+            "sibling_count": 11,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'pathological transformation'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "TODO: Define."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A pathological bodily process in which a canonical anatomical structure becomes a pathological anatomical structure."
+            },
+            {
+                "option_letter": "C",
+                "definition": "The process in which an allergic disease unfolds."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A pathological bodily process that occurs in the fetus during fetal development"
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000080",
+            "label": "pathological transformation",
+            "depth": 6,
+            "sibling_count": 7,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'pathological derivation'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A bodily process that is clinically abnormal."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A pathological bodily process in which a canonical anatomical structure becomes a pathological anatomical structure."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A pathological bodily process in which matter is reorganized in such a way as to give rise to new pathological formations which take the place of entities existing earlier."
+            },
+            {
+                "option_letter": "D",
+                "definition": "TODO: Define."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000081",
+            "label": "pathological derivation",
+            "depth": 6,
+            "sibling_count": 7,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'physical examination finding'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A representation that is either the output of a clinical history taking or a physical examination or an image finding, or some combination thereof."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A representation of an image that supports an inference to an assertion about some quality of a patient."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A representation of a quality of a specimen that is the output of a laboratory test and that can support an inference to an assertion about some quality of the patient."
+            },
+            {
+                "option_letter": "D",
+                "definition": "TODO: Define."
+            }
+        ],
+        "correct_answer": "D",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000083",
+            "label": "physical examination finding",
+            "depth": 8,
+            "sibling_count": 2,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'organism population'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "An aggregate of organisms of the same type."
+            },
+            {
+                "option_letter": "B",
+                "definition": "TODO: Define, relate to disorder, and place in the OGMS hierarchy."
+            },
+            {
+                "option_letter": "C",
+                "definition": "An object aggregate consisting of an organism and all material entities located within the organism, overlapping the organism, or occupying sites formed in part by the organism."
+            },
+            {
+                "option_letter": "D",
+                "definition": "An abnormal material entity that is part of a patient and hypothesized to be clinically relevant."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000084",
+            "label": "organism population",
+            "depth": 5,
+            "sibling_count": 11,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'syndrome'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A pattern of signs and symptoms that typically co-occur."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A quality of a patient that is (a) a deviation from clinical normality that exists in virtue of the realization of a disease and (b) is observable."
+            },
+            {
+                "option_letter": "C",
+                "definition": "An abnormal observable quality of a part of a patient that is hypothesized to be clinically relevant."
+            },
+            {
+                "option_letter": "D",
+                "definition": "b is a relational quality = Def. for some independent continuants c, d and for some time t: b quality_of c at t & b quality_of d at t. (axiom label in BFO2 Reference: [057-001])"
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000086",
+            "label": "syndrome",
+            "depth": 5,
+            "sibling_count": 6,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'extended organism'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "An object aggregate consisting of an organism and all material entities located within the organism, overlapping the organism, or occupying sites formed in part by the organism."
+            },
+            {
+                "option_letter": "B",
+                "definition": "An abnormal material entity that is part of a patient and hypothesized to be clinically relevant."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A material entity which is clinically abnormal and part of an extended organism. Disorders are the physical basis of disease."
+            },
+            {
+                "option_letter": "D",
+                "definition": "TODO: Define, relate to disorder, and place in the OGMS hierarchy."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000087",
+            "label": "extended organism",
+            "depth": 5,
+            "sibling_count": 11,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'congenital disorder'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A structurally anomalous part of an organism acquired during fetal development and present at birth (but not necessarily hereditary) which is hypothesized to be harmful for the organism."
+            },
+            {
+                "option_letter": "B",
+                "definition": "An aggregate of organisms of the same type."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A congenital disorder arising as a result of an infectious process"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A congenital disorder arising as a result of a drug exposure causing an anatomical abnormality"
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000089",
+            "label": "congenital disorder",
+            "depth": 5,
+            "sibling_count": 11,
+            "subclass_count": 2,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'treatment'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A planned process whose completion is hypothesized by a health care provider to eliminate, prevent, or alleviate a disorder, the signs and symptoms of a disorder, or a pathological process"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A treatment whose completion is hypothesized by a health care provider to prevent the signs and symptoms of a disorder or pathological process."
+            },
+            {
+                "option_letter": "C",
+                "definition": "TODO"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A health care process that involves the interpretation of a clinical picture from a given patient (input) and the assertion to the effect that the patient has a disease, disorder, or syndrome of a certain type, or none of these (output)."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000090",
+            "label": "treatment",
+            "depth": 6,
+            "sibling_count": 6,
+            "subclass_count": 2,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'health care encounter'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "TODO"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A temporally-connected health care process that has as participants an organization or person realizing the health care provider role and a person realizing the patient role.  The health care provider role and patient are realized during the health care encounter"
+            },
+            {
+                "option_letter": "C",
+                "definition": "A planned process whose completion is hypothesized by a health care provider to eliminate, prevent, or alleviate a disorder, the signs and symptoms of a disorder, or a pathological process"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A health care process which results in physical changes in a specified input material"
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000097",
+            "label": "health care encounter",
+            "depth": 6,
+            "sibling_count": 6,
+            "subclass_count": 3,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'hospitalization'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A temporally-connected health care process that has as participants an organization or person realizing the health care provider role and a person realizing the patient role.  The health care provider role and patient are realized during the health care encounter"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A health care process with the objective to produce information about the material entity that is the evaluant, by physically examining it or its proxies."
+            },
+            {
+                "option_letter": "C",
+                "definition": "TODO"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A planned process with the objective to improve the health status of a patient that directly involves the treatment, diagnosis, or prevention of disease or injury of a patient"
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000098",
+            "label": "hospitalization",
+            "depth": 6,
+            "sibling_count": 6,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'inpatient encounter'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "TODO"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A health care encounter in which care is provided for undifferentiated and unscheduled patients with illnesses or injuries requiring immediate medical attention."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A temporally-connected health care process that has as participants an organization or person realizing the health care provider role and a person realizing the patient role.  The health care provider role and patient are realized during the health care encounter"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A health care encounter involving a patient who has been admitted to a health care facility and remains in a hospital facility for at least one night."
+            }
+        ],
+        "correct_answer": "D",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000100",
+            "label": "inpatient encounter",
+            "depth": 7,
+            "sibling_count": 2,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'remission'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A disease stage which is characterized by the lack of a manifestation of a disease"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A remission which is characterized by a prolonged lack of some manifestations of a disease"
+            },
+            {
+                "option_letter": "C",
+                "definition": "A disease stage that marks the beginning of a disease"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A disease stage characterized by the lack of symptoms associated with a given disease"
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000106",
+            "label": "remission",
+            "depth": 5,
+            "sibling_count": 4,
+            "subclass_count": 2,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'ancillary health care process'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A process that realizes a plan which is the concretization of a plan specification."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A planned process that has the objective to support the objective of a health care process without directly involving the treatment, diagnosis, or prevention of disease or injury of a patient."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A planned process whose completion is hypothesized by a health care provider to reduce the risk of developing a disorder or the signs and symptoms of a disorder."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A planned process with the objective to improve the health status of a patient that directly involves the treatment, diagnosis, or prevention of disease or injury of a patient"
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000107",
+            "label": "ancillary health care process",
+            "depth": 5,
+            "sibling_count": 2,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'health care process data transformation'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "TODO"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A health care process that produces output from input data"
+            },
+            {
+                "option_letter": "C",
+                "definition": "A planned process with the objective to improve the health status of a patient that directly involves the treatment, diagnosis, or prevention of disease or injury of a patient"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A health care process with the objective to produce information about the material entity that is the evaluant, by physically examining it or its proxies."
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000110",
+            "label": "health care process data transformation",
+            "depth": 6,
+            "sibling_count": 6,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'prophylactic treatment'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A tissue disorder that has resulted from a dysregulation of cell proliferation leading to a net increase in mass"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A treatment whose completion is hypothesized by a health care provider to eliminate a disorder or to alleviate the signs and symptoms of a disorder or pathological process."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A treatment whose completion is hypothesized by a health care provider to prevent the signs and symptoms of a disorder or pathological process."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A planned process whose completion is hypothesized by a health care provider to eliminate, prevent, or alleviate a disorder, the signs and symptoms of a disorder, or a pathological process"
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000111",
+            "label": "prophylactic treatment",
+            "depth": 7,
+            "sibling_count": 1,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'chemotherapy procedure'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A therapeutic procedure that uses synthetic or naturally-occurring chemicals"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A therapeutic procedure in which a body part is transferred into a organism"
+            },
+            {
+                "option_letter": "C",
+                "definition": "A therapeutic procedure that uses radiation."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A treatment whose completion is hypothesized by a health care provider to eliminate a disorder or to alleviate the signs and symptoms of a disorder or pathological process."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000113",
+            "label": "chemotherapy procedure",
+            "depth": 8,
+            "sibling_count": 4,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'physical therapy procedure'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A therapeutic procedure that uses synthetic or naturally-occurring chemicals"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A therapeutic procedure that uses immune system derived entities."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A therapeutic procedure that uses physical conditioning"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A therapeutic procedure that uses radiation."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000115",
+            "label": "physical therapy procedure",
+            "depth": 8,
+            "sibling_count": 4,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'onset'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A disease stage which is preceded by a remission and characterized by the return of a manifestation of a disease."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A disease stage that marks the beginning of a disease"
+            },
+            {
+                "option_letter": "C",
+                "definition": "A disease stage which is characterized by the lack of a manifestation of a disease"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A disease stage with a rapid unfolding of signs and symptoms"
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000118",
+            "label": "onset",
+            "depth": 5,
+            "sibling_count": 4,
+            "subclass_count": 1,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'acute onset'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A disease stage that marks the beginning of a disease"
+            },
+            {
+                "option_letter": "B",
+                "definition": "b is a generically dependent continuant = Def. b is a continuant that g-depends_on one or more other entities. (axiom label in BFO2 Reference: [074-001])"
+            },
+            {
+                "option_letter": "C",
+                "definition": "A disease whose physical basis is an acquired genetic disorder."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A disease stage with a rapid unfolding of signs and symptoms"
+            }
+        ],
+        "correct_answer": "D",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000119",
+            "label": "acute onset",
+            "depth": 6,
+            "sibling_count": 0,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'partial remission'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "The representation of a conclusion of a diagnostic process."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A remission which is characterized by a prolonged lack of some manifestations of a disease"
+            },
+            {
+                "option_letter": "C",
+                "definition": "A disease stage which is characterized by the lack of a manifestation of a disease"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A remission which is characterized by a prolonged lack of all manifestations of a disease"
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000121",
+            "label": "partial remission",
+            "depth": 6,
+            "sibling_count": 1,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'follow-up health care encounter'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A health care encounter that is scheduled for the purpose of assessing a known set of specific issues"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A health care encounter that is regularly scheduled for the purpose of health monitoring."
+            },
+            {
+                "option_letter": "C",
+                "definition": "TODO"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A planned process with the objective to improve the health status of a patient that directly involves the treatment, diagnosis, or prevention of disease or injury of a patient"
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000125",
+            "label": "follow-up health care encounter",
+            "depth": 8,
+            "sibling_count": 1,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'congenital infection'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A therapeutic procedure that uses immune system derived entities."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A congenital disorder arising as a result of a drug exposure causing an anatomical abnormality"
+            },
+            {
+                "option_letter": "C",
+                "definition": "A congenital disorder arising as a result of an infectious process"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A structurally anomalous part of an organism acquired during fetal development and present at birth (but not necessarily hereditary) which is hypothesized to be harmful for the organism."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000126",
+            "label": "congenital infection",
+            "depth": 6,
+            "sibling_count": 1,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'allergic disease process'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A pathological bodily process in which matter is reorganized in such a way as to give rise to new pathological formations which take the place of entities existing earlier."
+            },
+            {
+                "option_letter": "B",
+                "definition": "The process in which an allergic disease unfolds."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A bodily process that is clinically abnormal."
+            },
+            {
+                "option_letter": "D",
+                "definition": "TODO: Define."
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000130",
+            "label": "allergic disease process",
+            "depth": 6,
+            "sibling_count": 7,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'cancer process'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "TODO: Define."
+            },
+            {
+                "option_letter": "B",
+                "definition": "The process in which an allergic disease unfolds."
+            },
+            {
+                "option_letter": "C",
+                "definition": "The process in which cancer unfolds"
+            },
+            {
+                "option_letter": "D",
+                "definition": "The process in which an autoimmune disease unfolds."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000131",
+            "label": "cancer process",
+            "depth": 6,
+            "sibling_count": 7,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'autoimmune disease process'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A pathological bodily process in which a canonical anatomical structure becomes a pathological anatomical structure."
+            },
+            {
+                "option_letter": "B",
+                "definition": "TODO: Define."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A pathological bodily process in which matter is reorganized in such a way as to give rise to new pathological formations which take the place of entities existing earlier."
+            },
+            {
+                "option_letter": "D",
+                "definition": "The process in which an autoimmune disease unfolds."
+            }
+        ],
+        "correct_answer": "D",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000132",
+            "label": "autoimmune disease process",
+            "depth": 6,
+            "sibling_count": 7,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'cancer progression stage I'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A cancer progression stage characterized by abnormal cellular growth that extends well beyond normal local tissue boundaries as a contiguous mass."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass and includes metastasis to other distant tissues besides lymph nodes."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A cancer progression stage characterized by abnormal cellular growth contained within normal tissue boundaries (e.g. carcinoma in situ)."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000136",
+            "label": "cancer progression stage I",
+            "depth": 7,
+            "sibling_count": 4,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'cancer progression stage II'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass and includes metastasis to one or more regional draining lymph nodes."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A cancer progression stage characterized by abnormal cellular growth contained within normal tissue boundaries (e.g. carcinoma in situ)."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass and includes metastasis to other distant tissues besides lymph nodes."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A cancer progression stage characterized by abnormal cellular growth that extends well beyond normal local tissue boundaries as a contiguous mass."
+            }
+        ],
+        "correct_answer": "D",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000137",
+            "label": "cancer progression stage II",
+            "depth": 7,
+            "sibling_count": 4,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'cancer progression stage III'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A cancer progression stage characterized by abnormal cellular growth that extends well beyond normal local tissue boundaries as a contiguous mass."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass and includes metastasis to one or more regional draining lymph nodes."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass and includes metastasis to other distant tissues besides lymph nodes."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A cancer progression stage characterized by abnormal cellular growth contained within normal tissue boundaries (e.g. carcinoma in situ)."
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000138",
+            "label": "cancer progression stage III",
+            "depth": 7,
+            "sibling_count": 4,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'cancer progression stage IV'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A cancer progression stage characterized by abnormal cellular growth contained within normal tissue boundaries (e.g. carcinoma in situ)."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A cancer progression stage characterized by abnormal cellular growth that extends well beyond normal local tissue boundaries as a contiguous mass."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass and includes metastasis to other distant tissues besides lymph nodes."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A cancer progression stage characterized by abnormal cellular growth that extends through normal local tissue boundaries as a contiguous mass."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000139",
+            "label": "cancer progression stage IV",
+            "depth": 7,
+            "sibling_count": 4,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'infectious disease process'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "The process in which an autoimmune disease unfolds."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A pathological bodily process that occurs in the fetus during fetal development"
+            },
+            {
+                "option_letter": "C",
+                "definition": "The process in which an infectious disease unfolds"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A bodily process that is clinically abnormal."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000140",
+            "label": "infectious disease process",
+            "depth": 6,
+            "sibling_count": 7,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'processual sign'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A process that realizes a plan which is the concretization of a plan specification."
+            },
+            {
+                "option_letter": "B",
+                "definition": "An abnormal processual entity occuring in a patient that is hypothesized to be clinically relevant."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A process which has as parts all the processes in which a given organism is participant."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A processual entity during which a patient participating in a disease course gradually returns to participating in a canonical life course."
+            }
+        ],
+        "correct_answer": "B",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000141",
+            "label": "processual sign",
+            "depth": 4,
+            "sibling_count": 10,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'qualitative sign'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "An abnormal observable quality of a part of a patient that is hypothesized to be clinically relevant."
+            },
+            {
+                "option_letter": "B",
+                "definition": "b is a relational quality = Def. for some independent continuants c, d and for some time t: b quality_of c at t & b quality_of d at t. (axiom label in BFO2 Reference: [057-001])"
+            },
+            {
+                "option_letter": "C",
+                "definition": "A quality which is an spatial arrangement or distribution of a(n) independent continuant(s) across a Three Dimensional Region."
+            },
+            {
+                "option_letter": "D",
+                "definition": "A (combination of) quality(ies) of an organism determined by the interaction of its genetic make-up and environment that differentiates specific instances of a species from other instances of the same species."
+            }
+        ],
+        "correct_answer": "A",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000142",
+            "label": "qualitative sign",
+            "depth": 5,
+            "sibling_count": 6,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'transplantation'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A transplantation in which the body part is a non-fluid tissue"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A transplantation in which the body part is a bodily fluid"
+            },
+            {
+                "option_letter": "C",
+                "definition": "A therapeutic procedure in which a body part is transferred into a organism"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A therapeutic procedure that uses radiation."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000143",
+            "label": "transplantation",
+            "depth": 8,
+            "sibling_count": 4,
+            "subclass_count": 2,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'solid organ transplant'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A transplantation in which the body part is a bodily fluid"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A therapeutic procedure in which a body part is transferred into a organism"
+            },
+            {
+                "option_letter": "C",
+                "definition": "A transplantation in which the body part is a non-fluid tissue"
+            },
+            {
+                "option_letter": "D",
+                "definition": "An ontology module that is extracted from a main ontology module and includes only a subset of entities or axioms."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000144",
+            "label": "solid organ transplant",
+            "depth": 9,
+            "sibling_count": 1,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'transfusion'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A therapeutic procedure in which a body part is transferred into a organism"
+            },
+            {
+                "option_letter": "B",
+                "definition": "A role borne by some material entity which can be delivered/administrated into some organism and the role is realized during a clinical treatment process aiming to treat symptoms, signs or diagnosed disease."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A transplantation in which the body part is a non-fluid tissue"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A transplantation in which the body part is a bodily fluid"
+            }
+        ],
+        "correct_answer": "D",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000145",
+            "label": "transfusion",
+            "depth": 9,
+            "sibling_count": 1,
+            "subclass_count": 0,
+            "parent_count": 1
+        }
+    },
+    {
+        "prompt": "Which of the following definitions best describes 'tissue disorder'?",
+        "options": [
+            {
+                "option_letter": "A",
+                "definition": "A disorder whose etiology involves (1) a modification to the patient's genomic DNA which leads to alterations in the normal expression pattern of the genome, but is (2) not a change in the nucleotide sequence."
+            },
+            {
+                "option_letter": "B",
+                "definition": "A disorder that involves some structural damage that is immediately caused by a catastrophic external force."
+            },
+            {
+                "option_letter": "C",
+                "definition": "A disorder of some macroscopic part of a tissue"
+            },
+            {
+                "option_letter": "D",
+                "definition": "A disorder whose etiology involves an abnormality in the nucleotide sequence of an organism's genome."
+            }
+        ],
+        "correct_answer": "C",
+        "meta": {
+            "iri": "http://purl.obolibrary.org/obo/OGMS_0000146",
+            "label": "tissue disorder",
+            "depth": 6,
+            "sibling_count": 4,
+            "subclass_count": 1,
+            "parent_count": 1
+        }
+    }
+]

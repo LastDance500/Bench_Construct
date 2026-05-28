@@ -6,6 +6,7 @@ import re
 import argparse
 import warnings
 import signal
+import sys
 from contextlib import ExitStack, redirect_stdout, redirect_stderr
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
@@ -13,10 +14,33 @@ from collections import defaultdict
 
 from owlready2 import World, ThingClass, owl, Restriction, sync_reasoner, onto_path, set_log_level
 
+
+PROCESSING_ROOT = Path(__file__).resolve().parents[2]
+if str(PROCESSING_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROCESSING_ROOT))
+
+from common import (
+    build_mirrored_output_dir,
+    class_stats,
+    configure_world_paths,
+    configure_logging,
+    discover_ontology_files,
+    empty_marker_path,
+    FileProcessingTimeout,
+    file_timeout,
+    load_ontology,
+    resolve_onto_paths,
+    save_empty_marker,
+    save_json,
+    slugify_for_windows,
+    suppress_library_noise,
+)
+
 # Defaults
 MAX_CLASSES = 1000
 MAX_TRIPLES = 10000
 REASONING_TIMEOUT = 300
+MAX_FULL_REASONER_CLASSES = 300
 
 # Caches
 label_cache: Dict[str, str] = {}
@@ -83,6 +107,11 @@ def humanize_relation(rel_name):
     s2 = re.sub('([a-z0-9])([A-Z])', r'\1 \2', s1)
     return s2.replace('_', ' ').lower()
 
+
+def normalize_label_text(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", str(text or "").replace("_", " ").replace("-", " ").lower()).strip()
+
+
 def make_prompt(subj_label, rel_name, inferred=False):
     if rel_name == 'subclassOf':
         question = f"Which of the following classes is the superclass of '{subj_label}'?"
@@ -91,7 +120,9 @@ def make_prompt(subj_label, rel_name, inferred=False):
     else:
         human = humanize_relation(rel_name)
         question = f"'{subj_label}' has which '{human}' relation to the following classes?"
-    return ("After reasoning, " + question) if inferred else question
+    if inferred:
+        return "After reasoning, " + question[:1].lower() + question[1:]
+    return question
 
 # ---------- 题目生成 ----------
 class RelationQuestionGenerator:
@@ -124,30 +155,50 @@ class RelationQuestionGenerator:
         # 随机候选
         candidates = random.sample(self.all_classes, min(100, len(self.all_classes)))
         distractors = []
+        used_labels = {normalize_label_text(get_label(subj)), normalize_label_text(get_label(obj))}
         for c in candidates:
-            if c == obj:
+            if c in {subj, obj}:
+                continue
+            label_key = normalize_label_text(get_label(c))
+            if not label_key or label_key in used_labels:
                 continue
             if c in disallowed:
                 continue
             distractors.append(c)
+            used_labels.add(label_key)
             if len(distractors) >= num_choices - 1:
                 break
 
         # 如果不足，再从剩下的里补
         if len(distractors) < num_choices - 1:
-            extra = [c for c in self.all_classes if c not in distractors and c not in disallowed and c != obj]
-            distractors += random.sample(extra, min(num_choices - 1 - len(distractors), len(extra)))
+            extra = list(self.all_classes)
+            random.shuffle(extra)
+            for c in extra:
+                if c in distractors or c in disallowed or c in {subj, obj}:
+                    continue
+                label_key = normalize_label_text(get_label(c))
+                if not label_key or label_key in used_labels:
+                    continue
+                distractors.append(c)
+                used_labels.add(label_key)
+                if len(distractors) >= num_choices - 1:
+                    break
 
         return distractors[:num_choices - 1]
 
     def generate_one(self, subj, rel, obj, num_choices=4):
-        depth = depth_cache.get(subj, 0)
-        sibling_count = len(get_siblings(subj, self.all_classes))
-        subclass_count = len([c for c in subj.subclasses() if c in self.all_classes])
-        parent_count = len([p for p in subj.is_a if isinstance(p, ThingClass) and p != owl.Thing])
+        stats = class_stats(subj, self.all_classes)
+        depth = stats.depth
+        sibling_count = stats.sibling_count
+        subclass_count = stats.subclass_count
+        parent_count = stats.parent_count
 
         distractors = self._get_distractors(subj, rel, obj, num_choices)
+        if len(distractors) < num_choices - 1:
+            return None
         options = [obj] + distractors
+        if len({normalize_label_text(get_label(option)) for option in options}) != num_choices:
+            return None
         random.shuffle(options)
 
         letters = ['A', 'B', 'C', 'D']
@@ -190,7 +241,8 @@ class RelationQuestionGenerator:
             subj, rel, obj = self._select_triple(subj)
             try:
                 q = self.generate_one(subj, rel, obj)
-                questions.append(q)
+                if q:
+                    questions.append(q)
                 if max_q and len(questions) >= max_q:
                     break
             except Exception as e:
@@ -198,26 +250,8 @@ class RelationQuestionGenerator:
         return questions
 
 # ---------- 保存 ----------
-def slugify_for_windows(name: str) -> str:
-    safe = []
-    prev_us = False
-    for ch in name:
-        if ch.isalnum() or ch in ("-", "."):
-            safe.append(ch)
-            prev_us = False
-        else:
-            if not prev_us:
-                safe.append("_")
-            prev_us = True
-    s = "".join(safe).strip("_")
-    return s or "unnamed"
-
-
 def save_questions(questions, save_path: Path):
-    save_path.parent.mkdir(parents=True, exist_ok=True)
-    with save_path.open('w', encoding='utf-8') as f:
-        json.dump(questions, f, ensure_ascii=False, indent=4)
-    logging.info(f"Saved {len(questions)} questions to {save_path}")
+    save_json(questions, save_path, description="questions")
 
 # ---------- 主流程 ----------
 def process_owl_file(
@@ -230,38 +264,25 @@ def process_owl_file(
     no_warnings: bool,
     concept_scope: str,
 ) -> None:
+    out_dir, safe_stem = build_mirrored_output_dir(file_path, input_root, output_root)
+    save_path = out_dir / f"relations_inferred_{safe_stem}.json"
+    empty_path = empty_marker_path(out_dir, "relations_inferred", safe_stem)
+    if save_path.exists():
+        logging.info("Skip existing: %s", save_path)
+        return
+    if empty_path.exists():
+        logging.info("Skip empty ontology marker: %s", empty_path)
+        return
+
     world = World()
-    if onto_paths:
-        for p in onto_paths:
-            try:
-                pp = str(Path(p).resolve())
-                if pp not in world._ontology_path:
-                    world._ontology_path.append(pp)
-                if pp not in onto_path:
-                    onto_path.append(pp)
-            except Exception:
-                pass
-    iri = f"file://{file_path.resolve()}"
-    onto = world.get_ontology(iri)
-    try:
-        if load_imports:
-            onto.load()
-        else:
-            onto.load(only_local=True)
-    except Exception as e:
-        if load_imports:
-            logging.warning(f"Failed loading with imports; retrying local-only: {file_path} ({e})")
-            try:
-                onto.load(only_local=True)
-            except Exception as e2:
-                logging.error(f"Failed local-only: {file_path} ({e2})")
-                return
-        else:
-            logging.error(f"Failed local-only: {file_path} ({e})")
-            return
+    configure_world_paths(world, onto_paths)
+    onto = load_ontology(world, file_path, load_imports=load_imports)
+    if onto is None:
+        return
 
     all_classes = list(onto.classes())
-    if len(all_classes) > MAX_CLASSES:
+    original_class_count = len(all_classes)
+    if original_class_count > MAX_CLASSES:
         all_classes = random.sample(all_classes, MAX_CLASSES)
 
     global depth_cache
@@ -281,7 +302,7 @@ def process_owl_file(
             return False
         return True
 
-    if num_classes <= MAX_CLASSES:
+    if original_class_count <= MAX_FULL_REASONER_CLASSES:
         if no_warnings:
             null = type('NW', (), {'write': lambda self, x: 0, 'flush': lambda self: None})()
             with ExitStack() as stack:
@@ -298,6 +319,11 @@ def process_owl_file(
                 if isinstance(eq, ThingClass) and eq in all_classes:
                     inferred.add((cls, 'equivalentTo', eq))
     else:
+        logging.info(
+            "%s - Skip full reasoner for %d classes; using hierarchy closure only",
+            file_path,
+            original_class_count,
+        )
         for cls in all_classes:
             for anc in cls.ancestors():
                 if isinstance(anc, ThingClass) and anc != cls and anc != owl.Thing and anc in all_classes:
@@ -322,6 +348,12 @@ def process_owl_file(
     implicit_all = list(inferred - explicit)
     if not implicit_all:
         logging.info(f"{file_path} - No implicit triples, skipping")
+        save_empty_marker(
+            empty_path,
+            source_file=file_path,
+            reason="no_implicit_class_relation_triples",
+            extra={"classes": len(all_classes), "explicit_triples": len(explicit)},
+        )
         return
 
     # concept-scope on subject side
@@ -337,6 +369,12 @@ def process_owl_file(
             implicit_all = [t for t in implicit_all if is_imported(t[0])]
         if not implicit_all:
             logging.info(f"{file_path} - No triples after concept-scope filtering")
+            save_empty_marker(
+                empty_path,
+                source_file=file_path,
+                reason="no_implicit_class_relation_triples_after_scope_filter",
+                extra={"classes": len(all_classes), "explicit_triples": len(explicit)},
+            )
             return
 
     implicit = random.sample(implicit_all, min(MAX_TRIPLES, len(implicit_all)))
@@ -348,17 +386,15 @@ def process_owl_file(
         gen.all_true_triples = set(implicit)
     questions = gen.generate_all(max_questions)
 
-    try:
-        rel = file_path.relative_to(input_root)
-    except Exception:
-        rel = file_path.name
-    rel_parts = list(Path(rel).parts)
-    safe_parts = [slugify_for_windows(p) for p in rel_parts[:-1]]
-    safe_stem = slugify_for_windows(Path(rel_parts[-1]).stem if rel_parts else file_path.stem)
-    out_dir = output_root.joinpath(*safe_parts, safe_stem)
-    save_path = out_dir / f"relations_inferred_{safe_stem}.json"
     if questions:
         save_questions(questions, save_path)
+    else:
+        save_empty_marker(
+            empty_path,
+            source_file=file_path,
+            reason="no_valid_inferred_relation_questions",
+            extra={"implicit_triples": len(implicit)},
+        )
     label_cache.clear(); depth_cache.clear(); ancestors_cache.clear()
 
 def main():
@@ -367,6 +403,7 @@ def main():
     parser.add_argument('--output', type=str, required=True, help='Output root directory (Windows-safe mirrored).')
     parser.add_argument('--seed', type=int, default=42, help='Random seed.')
     parser.add_argument('--max-questions', type=int, default=30000, help='Max questions per ontology.')
+    parser.add_argument('--file-timeout-seconds', type=int, default=0, help='Skip a single ontology file if processing exceeds this many seconds (0 means no timeout).')
     parser.add_argument('--no-imports', action='store_true', help='Do not load imports (local-only).')
     parser.add_argument('--onto-path', action='append', default=None, help='Local directories to resolve owl:imports (can repeat).')
     parser.add_argument('--concept-scope', type=str, choices=['all','native','imported'], default='all', help='Filter by origin of subject classes: all/native/imported.')
@@ -375,48 +412,32 @@ def main():
 
     args = parser.parse_args()
 
-    level = getattr(logging, args.log.upper(), logging.INFO)
-    logging.basicConfig(level=level, format='%(asctime)s %(levelname)s: %(message)s', handlers=[logging.StreamHandler(), logging.FileHandler('process_2_1.log', 'w', 'utf-8')])
-    if args.no_warnings:
-        try:
-            set_log_level(0)
-        except Exception:
-            pass
-        warnings.filterwarnings('ignore')
-        for name in ('owlready2','rdflib'):
-            try:
-                logging.getLogger(name).setLevel(logging.ERROR)
-            except Exception:
-                pass
+    configure_logging(args.log, "process_2_1.log")
+    suppress_library_noise(args.no_warnings)
 
     random.seed(args.seed)
     input_path = Path(args.input)
     output_root = Path(args.output)
     output_root.mkdir(parents=True, exist_ok=True)
     exts = ('.owl', '.rdf', '.rdfs', '.ttl')
-    files: List[Path] = []
-    if input_path.is_file() and input_path.suffix.lower() in exts:
-        files = [input_path]
-        input_root = input_path.parent
-    else:
-        input_root = input_path
-        for root, _, filenames in os.walk(str(input_path)):
-            for fname in filenames:
-                if fname.lower().endswith(exts):
-                    files.append(Path(root) / fname)
+    files, input_root = discover_ontology_files(input_path, exts)
     logging.info(f"Found {len(files)} files to process")
+    onto_paths = resolve_onto_paths(args.onto_path)
     for fp in files:
         try:
-            process_owl_file(
-                file_path=fp,
-                input_root=input_root,
-                output_root=output_root,
-                max_questions=args.max_questions,
-                load_imports=not args.no_imports,
-                onto_paths=[Path(p) for p in args.onto_path] if args.onto_path else None,
-                no_warnings=args.no_warnings,
-                concept_scope=args.concept_scope,
-            )
+            with file_timeout(args.file_timeout_seconds):
+                process_owl_file(
+                    file_path=fp,
+                    input_root=input_root,
+                    output_root=output_root,
+                    max_questions=args.max_questions,
+                    load_imports=not args.no_imports,
+                    onto_paths=onto_paths,
+                    no_warnings=args.no_warnings,
+                    concept_scope=args.concept_scope,
+                )
+        except FileProcessingTimeout as e:
+            logging.error("Timeout processing %s: %s", fp, e)
         except Exception as e:
             logging.error(f"{fp} failed: {e}")
 

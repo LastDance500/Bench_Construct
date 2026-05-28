@@ -5,6 +5,8 @@ import logging
 import argparse
 import warnings
 import sys
+import signal
+from contextlib import contextmanager
 from contextlib import ExitStack, redirect_stdout, redirect_stderr
 from pathlib import Path
 from typing import Iterable, List, Dict, Tuple, Optional, Set
@@ -14,31 +16,34 @@ from rdflib import URIRef, Literal
 from owlready2 import World, ThingClass, owl, onto_path, set_log_level
 
 
+PROCESSING_ROOT = Path(__file__).resolve().parents[2]
+if str(PROCESSING_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROCESSING_ROOT))
+
+from common import (
+    BaseOntologyLoader,
+    build_mirrored_output_dir,
+    class_depth,
+    class_stats,
+    configure_logging,
+    discover_ontology_files,
+    empty_marker_path,
+    get_label as shared_get_label,
+    global_class_metrics,
+    resolve_onto_paths,
+    save_empty_marker,
+    save_json,
+    selection_weight,
+    slugify_for_windows,
+    siblings as class_siblings,
+    suppress_library_noise,
+)
+
+
 # Caches to avoid repeated lookups
 definition_cache: Dict[str, str] = {}
 label_cache: Dict[str, str] = {}
-
-
-def slugify_for_windows(name: str) -> str:
-    """Create a Windows-safe slug for folder/file names.
-
-    - Replace non-alphanumeric characters with underscore
-    - Collapse repeated underscores
-    - Trim leading/trailing underscores
-    - Keep case to be readable
-    """
-    safe = []
-    prev_us = False
-    for ch in name:
-        if ch.isalnum() or ch in ("-", "."):
-            safe.append(ch)
-            prev_us = False
-        else:
-            if not prev_us:
-                safe.append("_")
-            prev_us = True
-    s = "".join(safe).strip("_")
-    return s or "unnamed"
+depth_cache: Dict[ThingClass, Optional[int]] = {}
 
 
 class _NullWriter:
@@ -142,118 +147,98 @@ def get_definition(entity) -> str:
 
 
 def get_label(entity) -> str:
-    """Get a readable label for an entity. Prefer rdfs:label/prefLabel; fallback to `entity.name`."""
     key = str(entity.iri)
     if key in label_cache:
         return label_cache[key]
-    labels = getattr(entity, "label", []) or getattr(entity, "prefLabel", [])
-    label = labels[0] if labels else entity.name
+    label = shared_get_label(entity)
     label_cache[key] = label
     return label
 
-def compute_depth(entity, memo=None):
-    if memo is None:
-        memo = {}
-    if entity in memo:
-        return memo[entity]
-    if entity == owl.Thing:
-        memo[entity] = 0
-        return 0
-    parents = [p for p in entity.is_a if isinstance(p, ThingClass) and p != owl.Thing]
-    depth = 1 if not parents else max(compute_depth(p, memo) for p in parents) + 1
-    memo[entity] = depth
-    return depth
 
-def get_siblings(entity):
-    sibs = set()
-    for p in entity.is_a:
-        if isinstance(p, ThingClass) and p != owl.Thing:
-            sibs.update(c for c in p.subclasses())
-    sibs.discard(entity)
-    return sibs
-
-def compute_global_metrics(classes):
-    max_depth = max_sib = max_sub = max_par = 0
-    memo = {}
-    for e in classes:
-        d   = compute_depth(e, memo)
-        s   = len(get_siblings(e))
-        sub = len(list(e.subclasses()))
-        par = len([p for p in e.is_a if isinstance(p, ThingClass) and p != owl.Thing])
-        max_depth = max(max_depth, d)
-        max_sib   = max(max_sib, s)
-        max_sub   = max(max_sub, sub)
-        max_par   = max(max_par, par)
-    return dict(
-        max_depth=max_depth,
-        max_sibling_count=max_sib,
-        max_subclass_count=max_sub,
-        max_parent_count=max_par
+def is_low_quality_definition(text: str) -> bool:
+    normalized = " ".join(text.lower().split())
+    return (
+        not normalized
+        or normalized in {"none", "no definition", "no definition provided.", "the concept", "the concept."}
+        or normalized.startswith("of ")
+        or normalized.startswith("note ")
+        or normalized.startswith("note:")
+        or normalized.startswith("_:")
+        or "http://" in normalized
+        or "https://" in normalized
+        or "improperly formatted iri" in normalized
+        or "error" in normalized
+        or "current axiom" in normalized
+        or "will have to be" in normalized
+        or "what about" in normalized
+        or "added in the ontology" in normalized
+        or "play with inconsistencies" in normalized
+        or len(normalized.split()) < 4
+        or len(normalized) < 24
+        or "index the concept of tmi" in normalized
+        or normalized.endswith("the concept of tmi")
     )
 
+
+def normalize_text(text: str) -> str:
+    return re.sub(r"\s+", " ", str(text or "").replace("_", " ").replace("-", " ")).strip().lower()
+
+
+def normalize_option_text(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", normalize_text(text)).strip()
+
+
+def text_tokens(text: str) -> Set[str]:
+    return {token for token in re.split(r"[^a-z0-9]+", normalize_text(text)) if len(token) >= 3}
+
+
+def lexical_overlap(left: str, right: str) -> float:
+    left_tokens = text_tokens(left)
+    right_tokens = text_tokens(right)
+    if not left_tokens or not right_tokens:
+        return 0.0
+    return len(left_tokens & right_tokens) / len(left_tokens | right_tokens)
+
+
+def is_generic_top_class(entity: ThingClass) -> bool:
+    label = get_label(entity).strip()
+    if not label:
+        return True
+    normalized = normalize_text(label).strip(".")
+    if normalized in {"thing", "motif", "function", "person", "type", "class", "entity"}:
+        return True
+    alpha = re.sub(r"[^A-Za-z]", "", label)
+    depth = compute_depth(entity)
+    return bool(alpha) and len(alpha) >= 4 and alpha.isupper() and depth is not None and depth <= 2
+
+def compute_depth(entity, memo=None):
+    return class_depth(entity, memo=memo if memo is not None else depth_cache)
+
+
+def depth_distance(entity, target_depth: Optional[int]) -> int:
+    depth = compute_depth(entity)
+    if depth is None or target_depth is None:
+        return 9999
+    return abs(depth - target_depth)
+
+def get_siblings(entity):
+    return class_siblings(entity)
+
+def compute_global_metrics(classes):
+    return global_class_metrics(classes)
+
 def compute_selection_weight(entity, gm):
-    d   = compute_depth(entity)
-    s   = len(get_siblings(entity))
-    sub = len(list(entity.subclasses()))
-    par = len([p for p in entity.is_a if isinstance(p, ThingClass) and p != owl.Thing])
-    nd   = d   / gm["max_depth"]            if gm["max_depth"]            else 0
-    ns   = s   / gm["max_sibling_count"]    if gm["max_sibling_count"]    else 0
-    nsub = sub / gm["max_subclass_count"]   if gm["max_subclass_count"]   else 0
-    npar = par / gm["max_parent_count"]     if gm["max_parent_count"]     else 0
-    return nd * (ns + 1) / (nsub + npar + 1)
+    return selection_weight(entity, gm)
 
-class OntologyLoader:
+class OntologyLoader(BaseOntologyLoader):
     def __init__(self, file_path: Path, load_imports: bool = True, onto_paths: Optional[List[Path]] = None):
-        self.file_path = Path(file_path)
-        self.world = World()
-        self.onto = None
-        self.load_imports = load_imports
-        # Configure additional local search paths for resolving owl:imports
-        if onto_paths:
-            for p in onto_paths:
-                try:
-                    pp = str(Path(p).resolve())
-                    if pp not in self.world._ontology_path:
-                        self.world._ontology_path.append(pp)
-                    if pp not in onto_path:
-                        onto_path.append(pp)
-                except Exception:
-                    pass
+        super().__init__(file_path, load_imports=load_imports, onto_paths=onto_paths)
 
-    def load(self):
-        """Load ontology with optional well-known annotation imports."""
-        # Ensure common annotation ontologies are available
-        for ont in (
+    def annotation_ontology_iris(self) -> tuple[str, ...]:
+        return (
             "http://purl.obolibrary.org/obo/iao.owl",
             "http://www.w3.org/2004/02/skos/core#",
-        ):
-            try:
-                self.world.get_ontology(ont).load()
-            except Exception as e:
-                logging.debug(f"Failed loading annotation ontology {ont}: {e}")
-
-        iri = f"file://{self.file_path.resolve()}"
-        onto = self.world.get_ontology(iri)
-        try:
-            if self.load_imports:
-                onto.load()
-            else:
-                onto.load(only_local=True)
-        except Exception as e:
-            if self.load_imports:
-                logging.warning(
-                    f"Failed loading ontology with imports; retrying local-only. File: {self.file_path} ({e})"
-                )
-                try:
-                    onto.load(only_local=True)
-                except Exception as e2:
-                    logging.error(f"Failed loading ontology local-only: {self.file_path} ({e2})")
-                    return None
-            else:
-                logging.error(f"Failed loading ontology local-only: {self.file_path} ({e})")
-                return None
-        self.onto = onto
-        return onto
+        )
 
     def preload_entities(self):
         """Touch common annotation attributes to warm caches and expand Python accessors."""
@@ -266,19 +251,29 @@ class OntologyLoader:
             _ = getattr(cls, "label", None)
             _ = getattr(cls, "prefLabel", None)
 
-    def get_all_classes_with_definition(self):
+    def get_all_classes_with_definition(self, max_candidates: Optional[int] = None):
         if not self.onto:
             return []
-        return [
-            cls
-            for cls in self.onto.classes()
-            if cls != owl.Thing and get_definition(cls) != "No definition provided."
-        ]
+        candidates = [cls for cls in self.onto.classes() if cls != owl.Thing]
+        random.shuffle(candidates)
+        selected = []
+        for cls in candidates:
+            definition = get_definition(cls)
+            if (
+                definition != "No definition provided."
+                and not is_low_quality_definition(definition)
+                and not is_generic_top_class(cls)
+            ):
+                selected.append(cls)
+                if max_candidates and len(selected) >= max_candidates:
+                    break
+        return selected
 
 class QuestionGenerator:
-    def __init__(self, classes: Iterable[ThingClass], mask_concept: bool = True):
+    def __init__(self, classes: Iterable[ThingClass], mask_concept: bool = True, max_questions: Optional[int] = None):
         self.classes = list(classes)
         self.mask_concept = mask_concept
+        self.max_questions = max_questions
 
     def _collect_aliases(self, entity: ThingClass) -> List[str]:
         aliases: Set[str] = set()
@@ -320,29 +315,33 @@ class QuestionGenerator:
 
     def get_candidate_distractors(self, target: ThingClass) -> List[ThingClass]:
         cand = set()
+        target_depth = compute_depth(target)
         # Siblings (other subclasses of the same parent)
         for p in target.is_a:
             if isinstance(p, ThingClass) and p != owl.Thing:
                 cand |= {
                     s for s in p.subclasses()
-                    if s != target and get_definition(s) != "No definition provided."
+                    if s != target
+                    and get_definition(s) != "No definition provided."
+                    and not is_low_quality_definition(get_definition(s))
+                    and not is_generic_top_class(s)
+                    and depth_distance(s, target_depth) <= 1
                 }
-        # Parents
-        cand |= {
-            p for p in target.is_a
-            if isinstance(p, ThingClass) and p != owl.Thing and get_definition(p) != "No definition provided."
-        }
         # Children
         cand |= {
             c for c in target.subclasses()
-            if c != target and get_definition(c) != "No definition provided."
+            if c != target
+            and get_definition(c) != "No definition provided."
+            and not is_low_quality_definition(get_definition(c))
+            and not is_generic_top_class(c)
+            and depth_distance(c, target_depth) <= 1
         }
-        # If fewer than 3 candidates, add random others as fallback
+        # If fewer than 3 candidates, add nearby classes only; avoid global random fallback.
         if len(cand) < 3:
-            others = [c for c in self.classes if c != target]
+            others = list(self.classes)
             random.shuffle(others)
             for o in others:
-                if o not in cand:
+                if o != target and o not in cand and depth_distance(o, target_depth) <= 1:
                     cand.add(o)
                 if len(cand) >= 3:
                     break
@@ -350,24 +349,50 @@ class QuestionGenerator:
         return list(cand)
 
     def generate_question_for_target(self, target: ThingClass) -> Dict:
-        d   = compute_depth(target)
-        s   = len(get_siblings(target))
-        sub = len(list(target.subclasses()))
-        par = len([p for p in target.is_a if isinstance(p, ThingClass) and p != owl.Thing])
+        stats = class_stats(target)
+        d = stats.depth
+        s = stats.sibling_count
+        sub = stats.subclass_count
+        par = stats.parent_count
 
         # Correct option
         defs = get_definition(target)
         lbl  = get_label(target)
+        if is_generic_top_class(target):
+            raise ValueError("generic top class")
         defs = self._mask_definition_text(defs, target)
+        if is_low_quality_definition(defs):
+            raise ValueError("low quality masked definition")
+        if lexical_overlap(lbl, defs) > 0.45:
+            raise ValueError("definition leaks target label")
+        used_definitions = {normalize_option_text(defs)}
         options = [{"label": lbl, "definition": defs, "is_correct": True}]
         # Distractors
-        distractors = random.sample(self.get_candidate_distractors(target), 3)
-        for dsc in distractors:
+        candidate_distractors = self.get_candidate_distractors(target)
+        if len(candidate_distractors) < 3:
+            raise ValueError("not enough quality distractors")
+        random.shuffle(candidate_distractors)
+        for dsc in candidate_distractors:
+            masked = self._mask_definition_text(get_definition(dsc), dsc)
+            normalized_masked = normalize_option_text(masked)
+            if not normalized_masked or normalized_masked in used_definitions:
+                continue
+            if is_low_quality_definition(masked):
+                continue
+            if lexical_overlap(lbl, masked) > 0.45:
+                continue
             options.append({
                 "label": get_label(dsc),
-                "definition": get_definition(dsc),
+                "definition": masked,
                 "is_correct": False
             })
+            used_definitions.add(normalized_masked)
+            if len(options) >= 4:
+                break
+        if len(options) < 4:
+            raise ValueError("not enough non-leaking distractors")
+        if len({normalize_option_text(o["definition"]) for o in options}) != 4:
+            raise ValueError("duplicate option definitions")
         random.shuffle(options)
 
         letters = ['A', 'B', 'C', 'D']
@@ -405,24 +430,46 @@ class QuestionGenerator:
     def generate_all_questions(self) -> Tuple[List[Dict], int]:
         if not self.classes:
             return [], 0
-        gm = compute_global_metrics(self.classes)
-        weights = [(e, compute_selection_weight(e, gm)) for e in self.classes]
-        max_w = max(w for _, w in weights) or 1.0
+        random.shuffle(self.classes)
         questions, skipped = [], 0
-        for e, w in weights:
-            if random.random() < (w / max_w):
-                try:
-                    questions.append(self.generate_question_for_target(e))
-                except Exception:
-                    skipped += 1
-            else:
+        # Keep generation deterministic and high-recall for single-ontology runs
+        # such as Propp. Previously weighted sampling could drop most classes.
+        for e in self.classes:
+            if self.max_questions and len(questions) >= self.max_questions:
+                break
+            try:
+                questions.append(self.generate_question_for_target(e))
+            except Exception:
                 skipped += 1
         return questions, skipped
 
 def save_questions(questions: List[Dict], save_path: Path) -> None:
-    save_path.parent.mkdir(parents=True, exist_ok=True)
-    with save_path.open("w", encoding="utf-8") as f:
-        json.dump(questions, f, ensure_ascii=False, indent=4)
+    save_json(questions, save_path, description="questions")
+
+
+class FileProcessingTimeout(RuntimeError):
+    pass
+
+
+@contextmanager
+def file_timeout(seconds: Optional[int]):
+    if not seconds or seconds <= 0 or not hasattr(signal, "SIGALRM"):
+        yield
+        return
+
+    previous_handler = signal.getsignal(signal.SIGALRM)
+
+    def _handle_timeout(_signum, _frame):
+        raise FileProcessingTimeout(f"timed out after {seconds}s")
+
+    signal.signal(signal.SIGALRM, _handle_timeout)
+    signal.alarm(seconds)
+    try:
+        yield
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, previous_handler)
+
 
 def process_owl_file(
     file_path: Path,
@@ -435,6 +482,8 @@ def process_owl_file(
     skip_existing: bool = True,
     onto_paths: Optional[List[Path]] = None,
     suppress_io: bool = False,
+    max_questions: Optional[int] = None,
+    max_candidates: Optional[int] = None,
 ) -> None:
     """Process a single OWL/RDF/Turtle ontology file and write questions JSON.
 
@@ -443,20 +492,15 @@ def process_owl_file(
     - If `concept_source` is "ontology", includes classes found within the ontology.
     """
     # Build mirrored relative path
-    try:
-        rel = file_path.relative_to(input_root)
-    except Exception:
-        rel = file_path.name
-
-    rel_parts = list(Path(rel).parts)
-    safe_parts = [slugify_for_windows(p) for p in rel_parts[:-1]]
-    safe_stem = slugify_for_windows(Path(rel_parts[-1]).stem if rel_parts else file_path.stem)
-
-    out_dir = output_root.joinpath(*safe_parts, safe_stem)
+    out_dir, safe_stem = build_mirrored_output_dir(file_path, input_root, output_root)
     out_file = out_dir / f"class2def_{safe_stem}.json"
+    empty_path = empty_marker_path(out_dir, "class2def", safe_stem)
 
     if skip_existing and out_file.exists():
         logging.info(f"Skip existing: {out_file}")
+        return
+    if skip_existing and empty_path.exists():
+        logging.info("Skip empty ontology marker: %s", empty_path)
         return
 
     loader = OntologyLoader(file_path, load_imports=load_imports, onto_paths=onto_paths)
@@ -465,8 +509,9 @@ def process_owl_file(
     if not onto:
         logging.error(f"Load failed: {file_path}")
         return
-    with silence_stdio(suppress_io):
-        loader.preload_entities()
+    if not max_candidates:
+        with silence_stdio(suppress_io):
+            loader.preload_entities()
 
     # Determine candidate classes by source
     if concept_source == "external":
@@ -483,7 +528,7 @@ def process_owl_file(
                 else:
                     logging.debug(f"External concept not found or without definition: {iri}")
     else:  # ontology
-        selected = loader.get_all_classes_with_definition()
+        selected = loader.get_all_classes_with_definition(max_candidates=max_candidates)
 
     # Filter by concept scope (all, native, imported)
     if concept_scope != "all":
@@ -499,12 +544,22 @@ def process_owl_file(
         elif concept_scope == "imported":
             selected = [c for c in selected if is_imported(c)]
 
-    gen = QuestionGenerator(selected)
+    gen = QuestionGenerator(selected, max_questions=max_questions)
     with silence_stdio(suppress_io):
         q, sk = gen.generate_all_questions()
     logging.info(f"Generated {len(q)} questions (skipped {sk}) from {file_path.name}.")
     if q:
         save_questions(q, out_file)
+    else:
+        save_empty_marker(
+            empty_path,
+            source_file=file_path,
+            reason="no_valid_class_definition_questions",
+            extra={"candidates": len(selected), "skipped": sk},
+        )
+    depth_cache.clear()
+    definition_cache.clear()
+    label_cache.clear()
 
 def parse_concept_file(path: Optional[Path]) -> Optional[Set[str]]:
     if not path:
@@ -541,6 +596,30 @@ def main():
         type=int,
         default=42,
         help="Random seed for question sampling.",
+    )
+    parser.add_argument(
+        "--max-questions",
+        type=int,
+        default=0,
+        help="Max questions per ontology (0 means all).",
+    )
+    parser.add_argument(
+        "--max-candidates",
+        type=int,
+        default=0,
+        help="Max eligible class candidates to scan per ontology before generating questions (0 means all).",
+    )
+    parser.add_argument(
+        "--file-timeout-seconds",
+        type=int,
+        default=0,
+        help="Skip a single ontology file if processing exceeds this many seconds (0 means no timeout).",
+    )
+    parser.add_argument(
+        "--max-file-mb",
+        type=float,
+        default=0,
+        help="Skip ontology files larger than this many MB (0 means no size filter).",
     )
     parser.add_argument(
         "--no-imports",
@@ -593,27 +672,8 @@ def main():
     args = parser.parse_args()
 
     level = getattr(logging, args.log.upper(), logging.INFO)
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s %(levelname)s: %(message)s",
-        handlers=[
-            logging.StreamHandler(),
-            logging.FileHandler("process.log", "w", "utf-8"),
-        ],
-    )
-
-    # Optionally suppress warnings from libraries and Python warnings module
-    if args.no_warnings:
-        try:
-            set_log_level(0)  # Silence Owlready2's own WARNING/INFO prints
-        except Exception:
-            pass
-        warnings.filterwarnings("ignore")
-        for name in ("owlready2", "rdflib"):
-            try:
-                logging.getLogger(name).setLevel(logging.ERROR)
-            except Exception:
-                pass
+    configure_logging(args.log, "process.log")
+    suppress_library_noise(args.no_warnings)
 
     random.seed(args.seed)
 
@@ -622,16 +682,7 @@ def main():
     output_root.mkdir(parents=True, exist_ok=True)
 
     exts = (".owl", ".rdf", ".rdfs", ".ttl")
-    files: List[Path] = []
-    if input_path.is_file() and input_path.suffix.lower() in exts:
-        files = [input_path]
-        input_root = input_path.parent
-    else:
-        input_root = input_path
-        for root, _, filenames in os.walk(str(input_path)):
-            for fname in filenames:
-                if fname.lower().endswith(exts):
-                    files.append(Path(root) / fname)
+    files, input_root = discover_ontology_files(input_path, exts)
 
     logging.info(f"Found {len(files)} ontology files.")
 
@@ -643,18 +694,26 @@ def main():
 
     for fp in files:
         try:
-            process_owl_file(
-                file_path=fp,
-                input_root=input_root,
-                output_root=output_root,
-                load_imports=not args.no_imports,
-                concept_source=args.concept_source,
-                concept_scope=args.concept_scope,
-                concept_list=concept_list,
-                skip_existing=not args.no_skip_existing,
-                onto_paths=[Path(p) for p in args.onto_path] if args.onto_path else None,
-                suppress_io=args.no_warnings,
-            )
+            if args.max_file_mb and fp.stat().st_size > args.max_file_mb * 1024 * 1024:
+                logging.warning("Skip large ontology file over %.1f MB: %s", args.max_file_mb, fp)
+                continue
+            with file_timeout(args.file_timeout_seconds):
+                process_owl_file(
+                    file_path=fp,
+                    input_root=input_root,
+                    output_root=output_root,
+                    load_imports=not args.no_imports,
+                    concept_source=args.concept_source,
+                    concept_scope=args.concept_scope,
+                    concept_list=concept_list,
+                    skip_existing=not args.no_skip_existing,
+                    onto_paths=resolve_onto_paths(args.onto_path),
+                    suppress_io=args.no_warnings,
+                    max_questions=args.max_questions or None,
+                    max_candidates=args.max_candidates or None,
+                )
+        except FileProcessingTimeout as e:
+            logging.error("Timeout processing %s: %s", fp, e)
         except Exception as e:
             logging.error(f"Failed processing {fp}: {e}")
 
