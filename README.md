@@ -5,7 +5,10 @@ The companion benchmark and inference repository is:
 https://github.com/LastDance500/OntoURL
 
 This repository is updated for OntoURL v1.1. The release contains 36,159
-benchmark instances from 43 formal ontologies across 8 domains and 15 tasks.
+benchmark instances from 43 formal ontology resources across 8 domains and 15
+tasks. The released `ontology` column uses 38 normalized ontology labels across
+the 15 task splits because several Science resources are grouped under broader
+labels.
 
 ## What This Repository Provides
 
@@ -135,4 +138,3 @@ not used to generate gold labels, ontology entities, or task answers.
 Code is released under the MIT License. Generated benchmark data are released
 under CC BY 4.0 where permitted by source ontology licenses; ontology-specific
 license metadata are provided in the dataset card.
-
